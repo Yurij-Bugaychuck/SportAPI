@@ -1,0 +1,25 @@
+﻿runtime: aspnetcore
+env: flex
+
+# This sample incurs costs to run on the App Engine flexible environment. 
+# The settings below are to reduce costs during testing and are not appropriate
+# for production use. For more information, see:
+# https://cloud.google.com/appengine/docs/flexible/dotnet/configuring-your-app-with-app-yaml
+manual_scaling:
+  instances: 1
+vpc_access_connector:
+  name: projects/sport-dotnet-api/locations/us-central1/connectors/newconnectore
+resources:
+  cpu: 1
+  memory_gb: 0.5
+  disk_size_gb: 10
+
+env_variables:
+    DB_HOST: cloudsql
+    DB_USER: sqlserver
+    DB_PASS: qw963741qw
+    DB_NAME: sportDB
+    
+beta_settings:
+    cloud_sql_instances: "sport-dotnet-api:us-central1:sportsqltest=tcp:1433"
+
