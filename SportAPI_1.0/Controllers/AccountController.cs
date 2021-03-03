@@ -15,6 +15,7 @@ namespace SportAPI.Controllers
     {
         private readonly SportContext _context;
 
+
         public AccountController(SportContext context)
         {
             _context = context;

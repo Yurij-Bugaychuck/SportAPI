@@ -69,10 +69,12 @@ namespace SportAPI
                             IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
                             // валидация ключа безопасности
                             ValidateIssuerSigningKey = true,
-                        };
+                        };  
                     });
 
+            services.AddTransient<ImageService>();
             services.AddControllers();
+            
 
 
 

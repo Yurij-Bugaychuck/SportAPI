@@ -6,18 +6,27 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SportAPI.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using System.Diagnostics;
+
+
 namespace SportAPI.Controllers
 {
     [Route("user")]
     public class UserController : Controller
     {
         private readonly SportContext _context;
-
-        public UserController(SportContext context)
+        private readonly IWebHostEnvironment _appEnvironment;
+        private readonly ImageService _ImageService;
+        public UserController(SportContext context, IWebHostEnvironment appEnvironment, ImageService imageService)
         {
             _context = context;
-           
+            _appEnvironment = appEnvironment;
+            _ImageService = imageService;
 
         }
 
@@ -26,9 +35,40 @@ namespace SportAPI.Controllers
         public async Task<IActionResult> Index()
         {
             User user = _context.Users.FirstOrDefault(o => o.Email == User.Identity.Name);
-            return Ok(user);
+            return Json(user);
         }
 
+
+
+        [Authorize]
+        [HttpPost("avatar")]
+        public async Task<IActionResult> setAvatar(IFormFile? image)
+        {
+            
+            if (image == null) return StatusCode(404, new { ErrorText = "Avatar supported only in png or jpg" });
+            string FileExt = System.IO.Path.GetExtension(image.FileName).ToLower();
+            
+            List<String> _extensions = new List<string>{ ".png", ".jpg" };
+            if (!_extensions.Contains(FileExt))
+            {
+                
+                return StatusCode(413, new { ErrorText = "Avatar supported only in png or jpg" });
+            }
+            var User = GetUser();
+            Debug.WriteLine(_appEnvironment.WebRootPath);
+            string StartPath = _appEnvironment.WebRootPath + "/UsersAvatar/" + User.User_id.ToString();
+            string ImgPath = await _ImageService.newImage(StartPath, image);
+            
+            
+
+            //var UserOptionsController = new UserOptionsController(_context);
+
+            //var ImgOption = new User_options{ key = "avatar", value = ImgPath };
+            //await UserOptionsController.addStatsByName(new User_options{ key = "avatar", value = ImgPath });
+
+
+            return Json(ImgPath);
+        }
         // GET: Get User By Id
 
         [Authorize]
@@ -47,7 +87,7 @@ namespace SportAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(user);
+            return Json(user);
         }
 
        
@@ -83,7 +123,7 @@ namespace SportAPI.Controllers
                     throw;
                 }
             }
-            return Ok(user);
+            return Json(user);
         }
 
         // HttpDelete: Delete User
@@ -104,12 +144,16 @@ namespace SportAPI.Controllers
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
-            return Ok(user);
+            return Json(user);
         }
 
         private bool UserExists(Guid id)
         {
             return _context.Users.Any(e => e.User_id == id);
+        }
+        private User GetUser()
+        {
+            return _context.Users.FirstOrDefault(e => e.Email == User.Identity.Name);
         }
     }
 

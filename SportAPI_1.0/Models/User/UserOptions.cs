@@ -17,7 +17,7 @@ namespace SportAPI.Models
 
 
         public string key { get; set; }
-        public int value { get; set; }
+        public string value { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [DataType(DataType.Date)]
