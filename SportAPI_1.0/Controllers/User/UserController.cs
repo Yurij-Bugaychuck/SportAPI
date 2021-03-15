@@ -34,43 +34,47 @@ namespace SportAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            User user = _context.Users.FirstOrDefault(o => o.Email == User.Identity.Name);
+            User user = await GetUser();
+            return Json(user);
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> Index([Bind("Username,Email,FirstName,LastName,Phone")] User user)
+        {
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
             return Json(user);
         }
 
 
-
+        //POST: Write new Avatar Image to User Options
         [Authorize]
         [HttpPost("avatar")]
         public async Task<IActionResult> setAvatar(IFormFile? image)
         {
-            
-            if (image == null) return StatusCode(404, new { ErrorText = "Avatar supported only in png or jpg" });
+            if (image == null) return StatusCode(404);
+
             string FileExt = System.IO.Path.GetExtension(image.FileName).ToLower();
-            
             List<String> _extensions = new List<string>{ ".png", ".jpg" };
             if (!_extensions.Contains(FileExt))
-            {
-                
+            { 
                 return StatusCode(413, new { ErrorText = "Avatar supported only in png or jpg" });
             }
-            var User = GetUser();
-            Debug.WriteLine(_appEnvironment.WebRootPath);
-            string StartPath = _appEnvironment.WebRootPath + "/UsersAvatar/" + User.User_id.ToString();
+
+            var User = await GetUser();
+            
+            string StartPath = _appEnvironment.WebRootPath + "/UsersAvatar/" + User.UserId.ToString();
             string ImgPath = await _ImageService.newImage(StartPath, image);
-            
-            
 
-            //var UserOptionsController = new UserOptionsController(_context);
-
-            //var ImgOption = new User_options{ key = "avatar", value = ImgPath };
-            //await UserOptionsController.addStatsByName(new User_options{ key = "avatar", value = ImgPath });
+            var ImgOption = new UserOption{ Key = "avatar", Value = ImgPath };
+            await _context.UsersOptions.AddAsync(ImgOption);
+            
 
 
             return Json(ImgPath);
         }
-        // GET: Get User By Id
 
+        // GET: Get User By Id
         [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> getuser(Guid? id)
@@ -81,7 +85,7 @@ namespace SportAPI.Controllers
             }
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.User_id == id);
+                .FirstOrDefaultAsync(m => m.UserId == id);
             if (user == null)
             {
                 return NotFound();
@@ -96,33 +100,22 @@ namespace SportAPI.Controllers
         //PUT: Edit User
         [HttpPut]
        
-        public async Task<IActionResult> Edit([Bind("User_id,Username,Email,First_name,Last_name,Phone")] User user)
-        {
-            //return Ok("PUT");
-            
-            try
+        public async Task<IActionResult> Edit([Bind("FirstName,LastName,Phone")] User user)
+        {   
+            var userDB = await GetUser();
+
+            if (userDB == null) return NotFound();
+
+            var props = user.GetType().GetProperties();
+            foreach(var prop in props)
             {
-                var userDB = _context.Users.Where(o=>o.User_id == user.User_id).FirstOrDefault();
-                var props = user.GetType().GetProperties();
-                foreach(var prop in props)
-                {
-                    var tmp = prop.GetValue(user, null);
-                    prop.SetValue(userDB, tmp);
-                }
-                _context.Entry(userDB).State = EntityState.Modified;
-                _context.SaveChanges();
+                var tmp = prop.GetValue(user, null);
+                prop.SetValue(userDB, tmp);
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(user.User_id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            _context.Entry(userDB).State = EntityState.Modified;
+            _context.SaveChanges();
+           
+         
             return Json(user);
         }
 
@@ -135,8 +128,7 @@ namespace SportAPI.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.User_id == id);
+            var user = await GetUser(id);
             if (user == null)
             {
                 return NotFound();
@@ -149,11 +141,11 @@ namespace SportAPI.Controllers
 
         private bool UserExists(Guid id)
         {
-            return _context.Users.Any(e => e.User_id == id);
+            return _context.Users.Any(e => e.UserId == id);
         }
-        private User GetUser()
+        private async Task<User> GetUser(Guid? id = null)
         {
-            return _context.Users.FirstOrDefault(e => e.Email == User.Identity.Name);
+            return await _context.Users.FirstOrDefaultAsync(e => e.Email == User.Identity.Name);
         }
     }
 

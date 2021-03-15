@@ -7,21 +7,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SportAPI.Models
 {
-    public class User_options
+
+    public class WorkoutExcerciseCategories
     {
         [Key]
-        public Guid User_options_id { get; set; }
-        public Guid User_id { get; set; }
-        [ForeignKey("User_id")]
-        public User User { get; set; }
-
-
-        public string key { get; set; }
-        public string value { get; set; }
+        public Guid Workout_excercise_categories_id { get; set; }
+        
+        public string name { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [DataType(DataType.Date)]
         public DateTime Created_at { get; set; } = DateTime.UtcNow;
+
+        List<WorkoutExcerciseCategories> WorkoutExcercisesByCategory { get; set; }
 
 
 

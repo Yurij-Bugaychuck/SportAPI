@@ -31,7 +31,7 @@ namespace SportAPI.Controllers
         {
             if (_context.Users.ToList().Count > 0)
             {
-                return Ok( _context.Users.ToList());
+                return Json( _context.Users.Include(o => o.Workouts).ToList());
             }
             else
             {   

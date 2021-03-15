@@ -9,39 +9,34 @@ namespace SportAPI.Models
 {
 
    
-    public class User
+    public class Workout
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid WorkoutId { get; set; }
+
         public Guid UserId { get; set; }
+        [ForeignKey("UserId")]
+        User User { get; set; }
 
 
-        
-        [StringLength(50)]
-        public string Username { get; set; }
-
-      
-        [StringLength(50)]
-        public string Email { get; set; }
 
         [StringLength(50)]
-        public string FirstName { get; set; }
-        [StringLength(50)]
-        public string LastName { get; set; }
+        public string Name { get; set; }
 
-       
         [StringLength(50)]
-        public string Phone { get; set; }
+        public string About { get; set; }
 
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        public bool IsPublished { get; set; } = false;
 
-        public List<UserStat> Stats { get; set; }
-        public List<UserOption> Options { get; set; }
-        public List<Workout> Workouts { get; set; }
+
+        List<WorkoutOption> Options { get; set; }
+        List<WorkoutExcercise> Excercises { get; set; }
 
 
 

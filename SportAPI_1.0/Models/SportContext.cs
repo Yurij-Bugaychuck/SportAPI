@@ -6,8 +6,15 @@ namespace SportAPI.Models
     {
         public DbSet<Message> Messages { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<User_stats> Users_stats { get; set; }
-        public DbSet<User_options> Users_options { get; set; }
+        public DbSet<UserStat> UsersStats { get; set; }
+        public DbSet<UserOption> UsersOptions { get; set; }
+        public DbSet<StatsCategories> StatsCategories { get; set; }
+        public DbSet<Workout> Workouts { get; set; }
+        public DbSet<WorkoutOption> WorkoutsOptions { get; set; }
+        public DbSet<WorkoutExcercise> WorkoutsExcercises { get; set; }
+        public DbSet<WorkoutExcerciseCategory> WorkoutsExcercisesCategory { get; set; }
+        public DbSet<WorkoutExcerciseCategories> WorkoutsExcercisesCategories { get; set; }
+        public DbSet<WorkoutExcerciseOption> WorkoutsExcercisesOptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

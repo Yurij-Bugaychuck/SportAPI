@@ -26,10 +26,10 @@ namespace SportAPI.Controllers
         public async Task<IActionResult> get()
         {
             User user = _context.Users.FirstOrDefault(o => o.Email == User.Identity.Name);
-            var UserOptions = (from o in _context.Users_options
-                             where o.User_id == user.User_id
-                             orderby o.Created_at descending
-                             select (new { key = o.key, value = o.value, Created_at = o.Created_at }))
+            var UserOptions = (from o in _context.UsersOptions
+                             where o.UserId == user.UserId
+                             orderby o.CreatedAt descending
+                             select (new { key = o.Key, value = o.Value, Created_at = o.CreatedAt }))
                             .AsEnumerable().GroupBy(o => o.key).ToDictionary(key => key.Key, value => value.Select(o => o.value).FirstOrDefault());
 
 
@@ -41,19 +41,19 @@ namespace SportAPI.Controllers
         public async Task<IActionResult> getStatsByKey(string? key)
         {
             User user = _context.Users.FirstOrDefault(o => o.Email == User.Identity.Name);
-            var UsersStats = await _context.Users_stats.Where(o => o.User_id == user.User_id && o.key == key).OrderBy(o=>o.Created_at).ToListAsync();
+            var UsersStats = await _context.UsersStats.Where(o => o.UserId == user.UserId && o.Key == key).OrderBy(o=>o.CreatedAt).ToListAsync();
 
             return Json(UsersStats);
         }
 
         [HttpPost]
-        public async Task<IActionResult> addStatsByName([Bind("key,value")] User_options stats )
+        public async Task<IActionResult> addStatsByName([Bind("key,value")] UserOption option )
         {
             User user = _context.Users.FirstOrDefault(o => o.Email == User.Identity.Name);
-            stats.User_id = user.User_id;
-            _context.Users_options.Add(stats);
+            option.UserId = user.UserId;
+            _context.UsersOptions.Add(option);
 
-            return Json(stats);
+            return Json(option);
         }
     }
 }
