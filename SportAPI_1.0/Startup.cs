@@ -12,7 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using SportAPI.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using SportAPI.Middlewares;
+using SportAPI.Services;
+using SportAPI.Interfaces;
 namespace SportAPI
 {
     public class Startup
@@ -74,6 +75,7 @@ namespace SportAPI
                     });
 
             services.AddTransient<ImageService>();
+            services.AddTransient<IUserService, UserService>();
             services.AddControllers();
 
            
@@ -101,8 +103,6 @@ namespace SportAPI
             app.UseAuthentication();
             app.UseAuthorization();
 
-
-            app.UseMiddleware<WorkoutMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

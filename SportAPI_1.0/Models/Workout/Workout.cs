@@ -35,8 +35,8 @@ namespace SportAPI.Models
         public bool IsPublished { get; set; } = false;
 
 
-        List<WorkoutOption> Options { get; set; }
-        List<WorkoutExcercise> Excercises { get; set; }
+        public List<WorkoutOption> Options { get; set; }
+        public List<WorkoutExcercise> Excercises { get; set; }
 
 
 

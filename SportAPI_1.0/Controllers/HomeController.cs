@@ -12,10 +12,10 @@ using System.Text.Json.Serialization;
 using System;
 
 namespace SportAPI.Controllers
-{   
-
+{
     [Route("/")]
-    public class HomeController : Controller
+    [ApiController]
+    public class HomeController : ControllerBase
     {
         private readonly SportContext _context;
 
@@ -31,11 +31,11 @@ namespace SportAPI.Controllers
         {
             if (_context.Users.ToList().Count > 0)
             {
-                return Json( _context.Users.Include(o => o.Workouts).ToList());
+                return Ok( _context.Users.ToList());
             }
             else
             {   
-                return Ok("Not found");
+                return NotFound("Not found");
             }
         }
         

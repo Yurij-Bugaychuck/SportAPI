@@ -6,54 +6,56 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SportAPI.Models;
+using SportAPI.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+
 namespace SportAPI.Controllers
 {
+    [Route("api/user/options")]
+    [ApiController]
     [Authorize]
-    [Route("user/options")]
-    public class UserOptionsController : Controller
+    public class UserOptionsController : ControllerBase
     {
         private readonly SportContext _context;
+        private readonly IUserService _userService;
 
-        public UserOptionsController(SportContext context)
+        public UserOptionsController(SportContext context, IUserService userService)
         {
             _context = context;
-
+            _userService = userService;
         }
+
+
 
  
         [HttpGet]
-        public async Task<IActionResult> get()
+        public async Task<IActionResult> Get()
         {
-            User user = _context.Users.FirstOrDefault(o => o.Email == User.Identity.Name);
-            var UserOptions = (from o in _context.UsersOptions
-                             where o.UserId == user.UserId
-                             orderby o.CreatedAt descending
-                             select (new { key = o.Key, value = o.Value, Created_at = o.CreatedAt }))
-                            .AsEnumerable().GroupBy(o => o.key).ToDictionary(key => key.Key, value => value.Select(o => o.value).FirstOrDefault());
+            User user = _userService.GetByEmail(User.Identity.Name);
 
+            var userOptions = _userService.GetUserOptions(user);
 
-            return Json(UserOptions);
+            return Ok(userOptions);
         }
         
 
         [HttpGet("{key}")]
-        public async Task<IActionResult> getStatsByKey(string? key)
+        public async Task<IActionResult> GetOptionByKey(string key)
         {
-            User user = _context.Users.FirstOrDefault(o => o.Email == User.Identity.Name);
-            var UsersStats = await _context.UsersStats.Where(o => o.UserId == user.UserId && o.Key == key).OrderBy(o=>o.CreatedAt).ToListAsync();
+            User user = _userService.GetByEmail(User.Identity.Name);
+            var UsersStats = _userService.GetUserOptionByKey(user, key);
 
-            return Json(UsersStats);
+            return Ok(UsersStats);
         }
 
         [HttpPost]
-        public async Task<IActionResult> addStatsByName([Bind("key,value")] UserOption option )
+        public async Task<IActionResult> AddOption([Bind("key,value")] UserOption option )
         {
-            User user = _context.Users.FirstOrDefault(o => o.Email == User.Identity.Name);
-            option.UserId = user.UserId;
-            _context.UsersOptions.Add(option);
+            User user = _userService.GetByEmail(User.Identity.Name);
 
-            return Json(option);
+            option = await _userService.AddUserOption(user, option);
+
+            return Ok(option);
         }
     }
 }

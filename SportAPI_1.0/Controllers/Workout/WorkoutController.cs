@@ -12,21 +12,24 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using System.Diagnostics;
-
+using SportAPI.Interfaces;
 
 namespace SportAPI.Controllers
 {
-    [Route("workout")]
-    public class WorkoutController : Controller
+    [Route("api/workout")]
+    [ApiController]
+    public class WorkoutController : ControllerBase
     {
         private readonly SportContext _context;
         private readonly IWebHostEnvironment _appEnvironment;
-        private readonly ImageService _ImageService;
-        public WorkoutController(SportContext context, IWebHostEnvironment appEnvironment, ImageService imageService)
+        private readonly IWorkoutService _workoutService;
+        private readonly IUserService _userService;
+        public WorkoutController(SportContext context, IWebHostEnvironment appEnvironment, IUserService userService, IWorkoutService workoutService)
         {
             _context = context;
             _appEnvironment = appEnvironment;
-            _ImageService = imageService;
+            _workoutService = workoutService;
+            _userService = userService;
 
         }
 
@@ -36,98 +39,52 @@ namespace SportAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            User user = await GetUser();
-            var workouts = _context.Workouts.Where(w => w.UserId == user.UserId).ToList();
-            return Json(workouts);
+            User user = _userService.GetByEmail(User.Identity.Name);
+            var workouts = await _workoutService.GetWorkouts(user);
+            return Ok(workouts);
         }
         
-        [HttpGet("{workoutID?}")]
-        public async Task<IActionResult> getWorkot(Guid? workoutID)
+        [HttpGet("{workoutID}")]
+        public async Task<IActionResult> GetWorkout(Guid workoutID)
         {
-            var workout = _context.Workouts.FirstOrDefault(o => o.WorkoutId == workoutID);
-            return Json(workout);
+            User user = _userService.GetByEmail(User.Identity.Name);
+            var workout = await _workoutService.GetWorkoutById(user, workoutID);
+            return Ok(workout);
         }
         
         [HttpPost]
-        public async Task<IActionResult> Index([Bind("Name,About,isPublished")] Workout workout)
+        public async Task<IActionResult> Index([FromForm] Workout workout)
         {
-            var user = await GetUser();
-            workout.UserId = user.UserId;
-            _context.Workouts.Add(workout);
-            await _context.SaveChangesAsync();
-            return Json(workout);
+            User user = _userService.GetByEmail(User.Identity.Name);
+
+            var res = await _workoutService.AddWorkout(user, workout);
+            return Ok(res);
         }
 
         //PUT: Edit User
         [HttpPut]
        
-        public async Task<IActionResult> Edit([Bind("WorkoutId,UserId,Name,About,CreatedAt,IsPublished")] Workout workout)
-        {   
-            var user = await GetUser();
+        public async Task<IActionResult> Edit([FromForm] Workout workout)
+        {
+            User user = _userService.GetByEmail(User.Identity.Name);
 
-            Workout? workoutDB = _context.Workouts.Where(o => o.WorkoutId == workout.WorkoutId).FirstOrDefault();
-            if (workoutDB == null) return NotFound("Can't find Workout with this ID");
+            var res = await _workoutService.UpdateWorkout(user, workout);
 
-            if (workoutDB.UserId != user.UserId) return Forbid("You not a onwer");
-
-            workoutDB.Name = workout.Name;
-            workoutDB.About = workout.About;
-            workoutDB.CreatedAt = workout.CreatedAt;
-            workoutDB.IsPublished = workout.IsPublished;
-
-
-            try
-            {
-                _context.Workouts.Update(workoutDB);
-                await _context.SaveChangesAsync();
-            }
-            catch(Exception e)
-            {
-                return StatusCode(500, e);
-            }
-            
-
-
-            return Json(workoutDB);
+            return Ok(res);
         }
 
         // HttpDelete: Delete Workout
         [HttpDelete]
-        public async Task<IActionResult> Delete(Guid? workoutId)
+        public async Task<IActionResult> Delete(Guid workoutId)
         {
 
-            var workoutDB = _context.Workouts.Where(o => o.WorkoutId == workoutId).FirstOrDefault();
-            var user = await GetUser();
+            User user = _userService.GetByEmail(User.Identity.Name);
 
-            if (workoutDB == null) return NotFound("Can't find Workout with this ID");
+            _workoutService.DeleteWorkout(user, workoutId);
 
-            if (workoutDB.UserId != user.UserId) return Forbid("You not a onwer");
-
-
-            try
-            {
-                _context.Workouts.Remove(workoutDB);
-                await _context.SaveChangesAsync();
-            }
-            catch(Exception e)
-            {
-                return StatusCode(500, e);
-            }
-
-
-            return Json(workoutDB);
+            return Ok(workoutId);
         }
 
-        private bool UserExists(Guid id)
-        {
-            return _context.Users.Any(e => e.UserId == id);
-        }
-        private async Task<User> GetUser(Guid? id = null)
-        {
-          
-                return await _context.Users.FirstOrDefaultAsync(e => e.Email == User.Identity.Name);
-            
-        }
     }
 
 }

@@ -6,87 +6,75 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SportAPI.Models;
+using SportAPI.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 namespace SportAPI.Controllers
 {
+    [Route("api/workout/{workoutId}/option")]
+    [ApiController]
     [Authorize]
-    [Route("workout/{workoutId}/option")]
-    public class WorkoutOptionsController : Controller
+    public class WorkoutOptionsController : ControllerBase
     {
         private readonly SportContext _context;
+        private readonly IWorkoutService _workoutService;
+        private readonly IUserService _userService;
 
-        public WorkoutOptionsController(SportContext context)
+        public WorkoutOptionsController(SportContext context, IWorkoutService workoutService, IUserService userService)
         {
             _context = context;
+            _workoutService = workoutService;
+            _userService = userService;
         }
 
  
         [HttpGet("/list")]
-        public async Task<IActionResult> get(Guid? workoutId)
+        public async Task<IActionResult> Get(Guid workoutId)
         {
-            if (workoutId == null) return NotFound();
+            User user = _userService.GetByEmail(User.Identity.Name);
+            var res = await _workoutService.GetWorkoutOptions(user, workoutId);
            
-
-            var workoutOptions = (from o in _context.WorkoutsOptions
-                                  where o.WorkoutId == workoutId
-                                  orderby o.CreatedAt descending
-                                  select (new { key = o.Key, value = o.Value, Created_at = o.CreatedAt })).AsEnumerable().ToDictionary(o => o.key);
-
-
-            return Json(workoutOptions);
+            return Ok(res);
         }
         
 
         [HttpGet("{key}")]
-        public async Task<IActionResult> getStatsByKey(Guid? workoutId, string? key)
+        public async Task<IActionResult> getStatsByKey(Guid workoutId, string key)
         {
             if (workoutId == null || key == null) return NotFound();
+            
+            User user = _userService.GetByEmail(User.Identity.Name);
 
-            var workoutOptionsByKey = await _context.WorkoutsOptions.Where(o => o.WorkoutId== workoutId && o.Key == key).OrderBy(o=>o.CreatedAt).FirstOrDefaultAsync();
+            var workoutOptionsByKey = _workoutService.GetWorkoutOptionByKey(user, workoutId, key);
 
-            return Json(workoutOptionsByKey);
+            return Ok(workoutOptionsByKey);
         }
 
         [HttpPost]
-        public async Task<IActionResult> add(Guid? workoutId, [Bind("Key,Value")] WorkoutOption option )
+        public async Task<IActionResult> Add(Guid workoutId, [Bind("Key,Value")] WorkoutOption option )
         {
+            User user = _userService.GetByEmail(User.Identity.Name);
+            _workoutService.AddWorkoutOption(user, workoutId, option);
 
-            if (workoutId == null) return NotFound();
-
-            option.WorkoutId = (Guid)workoutId;
-
-            try
-            {
-                _context.WorkoutsOptions.Add(option);
-                await _context.SaveChangesAsync();
-            }
-            catch(Exception e)
-            {
-                return StatusCode(500, e);
-            }
-
-            return Json(option);
+            return Ok(option);
         }
 
         [HttpPut]
-        public async Task<IActionResult> update(Guid? workoutId, [Bind("WorkoutOptionId,key,value,CreatedAt")] WorkoutOption option)
+        public async Task<IActionResult> Update(Guid workoutId, [Bind("WorkoutOptionId,key,value,CreatedAt")] WorkoutOption option)
         {
 
-            if (workoutId == null) return NotFound();
+            User user = _userService.GetByEmail(User.Identity.Name);
+            _workoutService.UpdateWorkoutOption(user, workoutId, option);
 
-            option.WorkoutId = (Guid)workoutId;
+            return Ok(option);
+        }
 
-            try
-            {
-                _context.WorkoutsOptions.Update(option);
-                await _context.SaveChangesAsync();
-            }
-            catch(Exception e)
-            {
-                return StatusCode(500, e);
-            }
+        [HttpDelete("{optionId}")]
+        public async Task<IActionResult> Update(Guid workoutId, Guid optionId)
+        {
+            User user = _userService.GetByEmail(User.Identity.Name);
+            _workoutService.DeleteWorkoutOption(user, workoutId, optionId);
 
-            return Json(option);
+            return Ok("deleted");
         }
     }
 }

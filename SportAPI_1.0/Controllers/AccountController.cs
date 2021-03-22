@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 
 namespace SportAPI.Controllers
 {
-    public class AccountController : Controller
+    [ApiController]
+    public class AccountController : ControllerBase
     {
         private readonly SportContext _context;
 
@@ -47,7 +48,7 @@ namespace SportAPI.Controllers
                 user_id = identity.Name
             };
 
-            return Json(response);
+            return Ok(response);
         }
 
         [HttpPost("/register")]
@@ -57,7 +58,7 @@ namespace SportAPI.Controllers
             {
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return Json(user);
+                return Ok(user);
             }
             catch(Exception e)
             {

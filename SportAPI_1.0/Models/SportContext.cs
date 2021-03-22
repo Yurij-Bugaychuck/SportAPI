@@ -31,11 +31,15 @@ namespace SportAPI.Models
            
         }
 
+     
+
         public SportContext(DbContextOptions<SportContext> options)
             : base(options)
         {
             //Database.EnsureDeleted();
             Database.EnsureCreated();
+
+            this.ChangeTracker.LazyLoadingEnabled = false;
         }
     }
 }

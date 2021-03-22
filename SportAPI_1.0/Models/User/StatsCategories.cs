@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SportAPI.Models
 {
-
+   
     public class StatsCategories
     {
         [Key]

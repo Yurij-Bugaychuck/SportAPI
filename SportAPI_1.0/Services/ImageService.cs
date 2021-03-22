@@ -15,8 +15,6 @@ namespace SportAPI
     public class ImageService
     { 
         
-        private readonly HttpContext _HttpContext;
-        private readonly IWebHostEnvironment _appEnvironment;
         
         public async Task<string> newImage(String StartPath, IFormFile uploadedFile)
         {

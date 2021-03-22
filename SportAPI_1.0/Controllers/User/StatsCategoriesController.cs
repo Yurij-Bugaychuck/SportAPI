@@ -9,7 +9,9 @@ using SportAPI.Models;
 
 namespace SportAPI.Controllers
 {
-    public class StatsCategoriesController : Controller
+    [Route("api/user/stats/categories")]
+    [ApiController]
+    public class StatsCategoriesController : ControllerBase
     {
         private readonly SportContext _context;
 
@@ -22,7 +24,7 @@ namespace SportAPI.Controllers
         public async Task<IActionResult> Index()
         {
             
-            return Json(await _context.StatsCategories.ToListAsync());
+            return Ok(await _context.StatsCategories.ToListAsync());
         }
 
         // GET: StatsCategories/Details/5
@@ -40,15 +42,8 @@ namespace SportAPI.Controllers
                 return NotFound();
             }
 
-            return Json(statsCategories);
+            return Ok(statsCategories);
         }
-
-        // GET: StatsCategories/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
         // POST: StatsCategories/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -63,7 +58,7 @@ namespace SportAPI.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(statsCategories);
+            return Ok(statsCategories);
         }
 
         // GET: StatsCategories/Edit/5
@@ -79,7 +74,7 @@ namespace SportAPI.Controllers
             {
                 return NotFound();
             }
-            return View(statsCategories);
+            return Ok(statsCategories);
         }
 
         // POST: StatsCategories/Edit/5
@@ -114,7 +109,7 @@ namespace SportAPI.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(statsCategories);
+            return Ok(statsCategories);
         }
 
         // GET: StatsCategories/Delete/5
@@ -132,7 +127,7 @@ namespace SportAPI.Controllers
                 return NotFound();
             }
 
-            return View(statsCategories);
+            return Ok(statsCategories);
         }
 
         // POST: StatsCategories/Delete/5
