@@ -31,6 +31,18 @@ namespace SportAPI
             return false;
         }
 
+        public bool HaveAccessWorkout(User user, Guid workoutId)
+        {
+            Workout workout = _context.Workouts.FirstOrDefault(o => o.WorkoutId == workoutId);
+            return HaveAccessWorkout(user, workout);
+        }
+
+        public bool HaveAccessWorkoutExercise(User user, Guid workoutId)
+        {
+            Workout workout = _context.Workouts.FirstOrDefault(o => o.WorkoutId == workoutId);
+            return HaveAccessWorkout(user, workout);
+        }
+
 
         public async Task<List<Workout>> GetWorkouts(User user)
         {
@@ -142,5 +154,212 @@ namespace SportAPI
             _context.WorkoutsOptions.Remove(optionDB);
         }
 
+
+        public async Task<List<WorkoutExcercise>> GetWorkoutExercises(User user, Guid workoutId)
+        {
+            var workout = await _context.Workouts.Include(o => o.Excercises).FirstOrDefaultAsync(o => o.WorkoutId == workoutId);
+
+            if (HaveAccessWorkout(user, workout))
+            {
+                return workout.Excercises.OrderBy(o=>o.Order).ToList();
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
+        }
+
+        public async Task<WorkoutExcercise> GetWorkoutExerciseById(User user, Guid workoutId, Guid exerciseId)
+        {
+            var workout = await _context.Workouts.Include(o => o.Excercises).FirstOrDefaultAsync(o => o.WorkoutId == workoutId);
+
+            if (HaveAccessWorkout(user, workout))
+            {
+                var exercise = workout.Excercises.FirstOrDefault(o => o.WorkoutExcerciseId == exerciseId);
+                return exercise;
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
+        }
+
+        public async Task<WorkoutExcercise> AddWorkoutExercise(User user, WorkoutExcercise exercise)
+        {
+            var workout = await _context.Workouts.Include(o => o.Excercises).FirstOrDefaultAsync(o => o.WorkoutId == exercise.WorkoutId);
+            if (HaveAccessWorkout(user, workout))
+            {
+                _context.WorkoutsExcercises.Add(exercise);
+                await _context.SaveChangesAsync();
+
+                return exercise;
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
+        }
+
+        public async Task<WorkoutExcercise> UpdateWorkoutExercise(User user, WorkoutExcercise exercise)
+        {
+            var workout = await _context.Workouts.Include(o => o.Excercises).FirstOrDefaultAsync(o => o.WorkoutId == exercise.WorkoutId);
+            if (HaveAccessWorkout(user, workout))
+            {
+                _context.WorkoutsExcercises.Update(exercise);
+                await _context.SaveChangesAsync();
+
+                return exercise;
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
+        }
+
+        public async Task<WorkoutExcercise> RemoveWorkoutExercise(User user, WorkoutExcercise exercise)
+        {
+            var workout = await _context.Workouts.Include(o => o.Excercises).FirstOrDefaultAsync(o => o.WorkoutId == exercise.WorkoutId);
+            if (HaveAccessWorkout(user, workout))
+            {
+                _context.WorkoutsExcercises.Remove(exercise);
+                await _context.SaveChangesAsync();
+
+                return exercise;
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
+        }
+
+        public async Task<List<WorkoutExcerciseOption>> GetWorkoutExerciseOptions(User user, Guid workoutId, Guid exerciseId)
+        {
+            var exercise = await _context.WorkoutsExcercises.Include(o=>o.Options).FirstOrDefaultAsync(o=> o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            if (HaveAccessWorkout(user, workoutId))
+            {
+                if (exercise != null)
+                {
+                    return exercise.Options.OrderBy(o => o.CreatedAt).ToList();
+                }
+                else
+                {
+                    throw new AuthenticationException();
+                }
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
+        }
+
+        public async Task<List<WorkoutExcerciseOption>> GetWorkoutExerciseOptionByKey(
+            User user, 
+            Guid workoutId, 
+            Guid exerciseId, 
+            string key
+            )
+        {
+            var exercise = await _context.WorkoutsExcercises.Include(o => o.Options).FirstOrDefaultAsync(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            if (HaveAccessWorkout(user, workoutId))
+            {
+                if (exercise != null)
+                {
+                    return exercise.Options.Where(o => o.Key == key).OrderBy(o=>o.CreatedAt).ToList();
+                }
+                else
+                {
+                    throw new AuthenticationException();
+                }
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
+        }
+
+        public async Task<WorkoutExcerciseOption> AddWorkoutExerciseOptionByKey(
+            User user,
+            Guid workoutId, 
+            Guid exerciseId, 
+            WorkoutExcerciseOption option
+            )
+        {
+            var exercise = await _context.WorkoutsExcercises.Include(o => o.Options).FirstOrDefaultAsync(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            if (HaveAccessWorkout(user, workoutId))
+            {
+                if (exercise != null)
+                {
+                    _context.WorkoutsExcercisesOptions.Add(option);
+                    await _context.SaveChangesAsync();
+
+                    return option;
+                }
+                else
+                {
+                    throw new AuthenticationException();
+                }
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
+        }
+
+        public async Task<WorkoutExcerciseOption> UpdateWorkoutExerciseOptionByKey(
+            User user,
+            Guid workoutId,
+            Guid exerciseId,
+            WorkoutExcerciseOption option
+            )
+        {
+            var exercise = await _context.WorkoutsExcercises.Include(o => o.Options).FirstOrDefaultAsync(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            if (HaveAccessWorkout(user, workoutId))
+            {
+                if (exercise != null)
+                {
+                    _context.WorkoutsExcercisesOptions.Update(option);
+                    await _context.SaveChangesAsync();
+
+                    return option;
+                }
+                else
+                {
+                    throw new AuthenticationException();
+                }
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
+        }
+
+        public async Task<WorkoutExcerciseOption> RemoveWorkoutExerciseOptionByKey(
+            User user,
+            Guid workoutId,
+            Guid exerciseId,
+            WorkoutExcerciseOption option
+            )
+        {
+            var exercise = await _context.WorkoutsExcercises.Include(o => o.Options).FirstOrDefaultAsync(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            if (HaveAccessWorkout(user, workoutId))
+            {
+                if (exercise != null)
+                {
+                    var _option = exercise.Options.FirstOrDefault(o => o.WorkoutExcerciseOptionId == option.WorkoutExcerciseOptionId);
+
+                    if (_option != null)
+                    {
+                        _context.WorkoutsExcercisesOptions.Remove(_option);
+
+                        await _context.SaveChangesAsync();
+
+                        return option;
+                    }
+                    
+                }
+            }
+            
+            throw new AuthenticationException();
+        }
     }
 }

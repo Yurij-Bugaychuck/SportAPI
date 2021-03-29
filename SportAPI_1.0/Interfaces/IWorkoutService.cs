@@ -24,5 +24,18 @@ namespace SportAPI.Interfaces
         void UpdateWorkoutOption(User user, Guid workoutId, WorkoutOption option);
 
         void DeleteWorkoutOption(User user, Guid workoutId, Guid optionId);
+
+        public Task<List<WorkoutExcercise>> GetWorkoutExercises(User user, Guid workoutId);
+
+        public Task<WorkoutExcercise> GetWorkoutExerciseById(User user, Guid workoutId, Guid exerciseId);
+        public Task<WorkoutExcercise> AddWorkoutExercise(User user, WorkoutExcercise exercise);
+        public Task<WorkoutExcercise> UpdateWorkoutExercise(User user, WorkoutExcercise exercise);
+        public Task<WorkoutExcercise> RemoveWorkoutExercise(User user, WorkoutExcercise exercise);
+        public Task<List<WorkoutExcerciseOption>> GetWorkoutExerciseOptions(User user, Guid workoutId, Guid exerciseId);
+
+        public Task<List<WorkoutExcerciseOption>> GetWorkoutExerciseOptionByKey(User user, Guid workoutId, Guid exerciseId, string key);
+        public Task<WorkoutExcerciseOption> AddWorkoutExerciseOption(User user, Guid workoutId, Guid exerciseId, WorkoutExcerciseOption option);
+        public Task<WorkoutExcerciseOption> UpdateWorkoutExerciseOption(User user, Guid workoutId, Guid exerciseId, WorkoutExcerciseOption option);
+        public Task<WorkoutExcerciseOption> RemoveWorkoutExerciseOption(User user, Guid workoutId, Guid exerciseId, WorkoutExcerciseOption option);
     }
 }

@@ -28,8 +28,8 @@ namespace SportAPI.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
 
-        List<WorkoutExcerciseCategory> Categories { get; set; }
-        List<WorkoutExcerciseOption> Options { get; set; }
+        public List<WorkoutExcerciseCategory> Categories { get; set; }
+        public List<WorkoutExcerciseOption> Options { get; set; }
 
 
 
