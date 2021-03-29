@@ -49,7 +49,7 @@ namespace SportAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddOption([Bind("key,value")] UserOption option )
+        public async Task<IActionResult> AddOption([FromBody] UserOption option )
         {
             User user = _userService.GetByEmail(User.Identity.Name);
 

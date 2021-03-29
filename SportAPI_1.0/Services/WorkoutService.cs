@@ -277,7 +277,7 @@ namespace SportAPI
             }
         }
 
-        public async Task<WorkoutExcerciseOption> AddWorkoutExerciseOptionByKey(
+        public async Task<WorkoutExcerciseOption> AddWorkoutExerciseOption(
             User user,
             Guid workoutId, 
             Guid exerciseId, 
@@ -305,7 +305,7 @@ namespace SportAPI
             }
         }
 
-        public async Task<WorkoutExcerciseOption> UpdateWorkoutExerciseOptionByKey(
+        public async Task<WorkoutExcerciseOption> UpdateWorkoutExerciseOption(
             User user,
             Guid workoutId,
             Guid exerciseId,
@@ -333,7 +333,7 @@ namespace SportAPI
             }
         }
 
-        public async Task<WorkoutExcerciseOption> RemoveWorkoutExerciseOptionByKey(
+        public async Task<WorkoutExcerciseOption> RemoveWorkoutExerciseOption(
             User user,
             Guid workoutId,
             Guid exerciseId,

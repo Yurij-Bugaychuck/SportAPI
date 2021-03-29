@@ -40,7 +40,7 @@ namespace SportAPI.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> Index([Bind("Username,Email,FirstName,LastName,Phone")] User user)
+        public async Task<IActionResult> Index([FromBody] User user)
         {
             Guid userId = await _userService.CreateUser(user);
             return Ok(userId);
@@ -99,7 +99,7 @@ namespace SportAPI.Controllers
         //PUT: Edit User
         [HttpPut]
        
-        public async Task<IActionResult> Edit([Bind("FirstName,LastName,Phone")] User user)
+        public async Task<IActionResult> Edit([FromBody] User user)
         {
             User userDB = _userService.GetByEmail(User.Identity.Name);
 

@@ -44,7 +44,7 @@ namespace SportAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddStatsByName([Bind("key,value")] UserStat stat)
+        public async Task<IActionResult> AddStatsByName([FromBody] UserStat stat)
         {
             User user = _userService.GetByEmail(User.Identity.Name);
 
