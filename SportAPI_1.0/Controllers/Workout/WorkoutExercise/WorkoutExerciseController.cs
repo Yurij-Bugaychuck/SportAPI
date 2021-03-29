@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using SportAPI.Models;
 using SportAPI.Interfaces;
 
-namespace SportAPI.Controllers.Workout.WorkoutExercise
+namespace SportAPI.Controllers
 {
     [Route("api/workout/{workoutId}/exercises")]
     [ApiController]

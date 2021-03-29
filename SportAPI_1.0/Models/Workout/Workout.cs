@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SportAPI.Models
-{
-
-   
+{ 
     public class Workout
     {
         [Key]
