@@ -10,10 +10,11 @@ namespace SportAPI.Models
     public class UserOption
     {
         [Key]
-        public Guid UserOptionsId { get; set; }
-        public Guid UserId { get; set; }
+        public Guid UserOptionsId { get; set; } = Guid.NewGuid();
+        
+        public Guid? UserId { get; set; } = null;
         [ForeignKey("UserId")]
-        public User User { get; set; }
+       
 
 
         public string Key { get; set; }

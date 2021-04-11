@@ -21,7 +21,7 @@ namespace SportAPI
         {
             _context = context;
         }
-        public bool CanRead(User user)
+        public bool CanRead<T>(User user, T t)
         {
             return true;
         }

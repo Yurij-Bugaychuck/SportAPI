@@ -11,22 +11,23 @@ namespace SportAPI.Models
     public class UserStat
     {
         [Key]
-        public Guid UserStatsId { get; set; }
-        public Guid UserId { get; set; }
+        public Guid UserStatsId { get; set; } = Guid.NewGuid();
+
+
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public Guid UserId { get; set; }
 
 
         public string Key { get; set; }
-        public int Value { get; set; }
+        public int? Value { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public Guid StatsCategoryId { get; set; }
         [ForeignKey("StatsCategoryId")]
-        public StatsCategories Category  { get; set; }
+        public Guid? StatsCategoryId { get; set; }
+        
 
 
 

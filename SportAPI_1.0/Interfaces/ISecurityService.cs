@@ -7,6 +7,6 @@ namespace SportAPI.Interfaces
 {
     interface ISecurityService
     {
-        bool CanRead(User user);
+        bool CanRead<T>(User user, T obj);
     }
 }

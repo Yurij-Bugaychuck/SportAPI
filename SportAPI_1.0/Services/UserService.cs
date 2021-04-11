@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Data.Entity;
 using SportAPI.Interfaces;
 using SportAPI.Models;
+using System.Security.Authentication;
+
 namespace SportAPI.Services
 {
     public class UserService : IUserService, ISecurityService
@@ -15,16 +17,17 @@ namespace SportAPI.Services
             _context = dbContext;
         }
 
-        public bool CanRead(User user)
+        public bool CanRead<UserOption>(User user, UserOption userOption)
         {
             return true;
         }
+        
 
         public User GetByEmail(string email)
         {
             return _context.Users.Include(o => o.Workouts).FirstOrDefault(o => o.Email == email);
         }
-        
+
         public User GetById(Guid id)
         {
             return _context.Users.FirstOrDefault(o => o.UserId == id);
@@ -40,14 +43,15 @@ namespace SportAPI.Services
 
         public async Task<User> UpdateUser(User userDB, User user)
         {
-            var props = user.GetType().GetProperties();
-            foreach (var prop in props)
-            {
-                var tmp = prop.GetValue(user, null);
-                prop.SetValue(userDB, tmp);
-            }
 
-            _context.Entry(userDB).State = (Microsoft.EntityFrameworkCore.EntityState)EntityState.Modified;
+            if (user.FirstName != null)
+                userDB.FirstName = user.FirstName;
+            if (user.LastName != null)
+                userDB.LastName = user.LastName;
+            if (user.Phone != null)
+                userDB.Phone = user.Phone;
+
+            _context.Users.Update(userDB);
             await _context.SaveChangesAsync();
 
             return userDB;
@@ -64,25 +68,61 @@ namespace SportAPI.Services
             var userOption = _context.UsersOptions.Add(option);
             await _context.SaveChangesAsync();
 
-            return _context.UsersOptions.FirstOrDefault(o=>o.UserOptionsId == option.UserOptionsId);
+            return _context.UsersOptions.FirstOrDefault(o => o.UserOptionsId == option.UserOptionsId);
         }
 
-
-        public Dictionary<string, string> GetUserOptions(User user)
+        public async Task<UserOption> UpdateUserOption(User user, UserOption option)
         {
-            var userOptions = (from o in _context.UsersOptions
-                               where o.UserId == user.UserId
-                               orderby o.CreatedAt descending
-                               select (new { key = o.Key, value = o.Value, Created_at = o.CreatedAt }))
-                           .AsEnumerable().GroupBy(o => o.key).ToDictionary(key => key.Key, value => value.Select(o => o.value).FirstOrDefault());
+            var optionDB = _context.UsersOptions.FirstOrDefault(o => o.UserOptionsId == option.UserOptionsId);
+            
+            if (optionDB.UserId != user.UserId) throw new AuthenticationException();
 
-            return userOptions;
+            if (option.Key != null)
+                optionDB.Key = option.Key;
+            if (option.Value != null)
+                optionDB.Value = option.Value;
+
+            _context.UsersOptions.Update(optionDB);
+            await _context.SaveChangesAsync();
+
+            return _context.UsersOptions.FirstOrDefault(o => o.UserOptionsId == optionDB.UserOptionsId);
         }
-        
+
+        public async Task<UserOption> RemoveUserOption(User user, Guid optionId)
+        {
+            var option = _context.UsersOptions.FirstOrDefault(o => o.UserOptionsId == optionId);
+            
+            if (option.UserId != user.UserId) throw new AuthenticationException();
+
+            _context.UsersOptions.Remove(option);
+            await _context.SaveChangesAsync();
+
+            return option;
+        }
+
+
+        public List<UserOption> GetUserOptions(User user)
+        {
+            var userOptions = _context.UsersOptions
+                .Where(o => o.UserId == user.UserId)
+                .OrderByDescending(o => o.CreatedAt)
+                .AsEnumerable()
+                .GroupBy(o => o.Key)
+                .ToDictionary(o => o.Key);
+
+            var res = new List<UserOption>();
+            foreach (var i in userOptions)
+            {
+                res.Add(i.Value.FirstOrDefault());
+            }
+
+            return res;
+        }
+
         public List<UserOption> GetUserOptionByKey(User user, string key)
         {
             var userOptions = _context.UsersOptions.Where(o => o.UserId == user.UserId && o.Key == key).OrderBy(o => o.CreatedAt).ToList();
-
+ 
             return userOptions;
         }
 
@@ -93,29 +133,90 @@ namespace SportAPI.Services
         {
             stat.UserId = user.UserId;
 
-            var userOption = _context.UsersStats.Add(stat);
+            _context.UsersStats.Add(stat);
             await _context.SaveChangesAsync();
 
             return _context.UsersStats.FirstOrDefault(o => o.UserStatsId == stat.UserStatsId);
         }
 
 
-        public Dictionary<string, int> GetUserStats(User user)
+        public List<UserStat> GetUserStats(User user)
         {
-            var usersStats = (from o in _context.UsersStats
-                               where o.UserId == user.UserId
-                               orderby o.CreatedAt descending
-                               select (new { key = o.Key, value = o.Value, Created_at = o.CreatedAt }))
-                           .AsEnumerable().GroupBy(o => o.key).ToDictionary(key => key.Key, value => value.Select(o => o.value).FirstOrDefault());
+            var userStats = _context.UsersStats
+                .Where(o => o.UserId == user.UserId)
+                .OrderByDescending(o => o.CreatedAt)
+                .AsEnumerable()
+                .GroupBy(o => o.Key) 
+                .ToDictionary(o => o.Key);
 
-            return usersStats;
+            var res = new List<UserStat>();
+            foreach (var i in userStats)
+            {
+                res.Add(i.Value.FirstOrDefault());
+            }
+
+            return res;
         }
 
         public List<UserStat> GetUserStatByKey(User user, string key)
         {
-            var userStats = _context.UsersStats.Where(o => o.UserId == user.UserId && o.Key == key).OrderBy(o => o.CreatedAt).ToList();
+            var userStats = _context.UsersStats
+                .Where(o => o.UserId == user.UserId && o.Key == key)
+                .OrderBy(o => o.CreatedAt)
+                .ToList();
 
             return userStats;
+        }
+
+        public List<UserStat> GetUserStatByCategory(User user, Guid categoryId)
+        {
+            var userStats = _context.UsersStats
+                .Where(o => o.UserId == user.UserId && o.StatsCategoryId == categoryId)
+                .OrderBy(o => o.CreatedAt).OrderByDescending(o => o.CreatedAt)
+                .AsEnumerable()
+                .GroupBy(o => o.Key)
+                .ToDictionary(o => o.Key);
+
+            var res = new List<UserStat>();
+            foreach (var i in userStats)
+            {
+                res.Add(i.Value.FirstOrDefault());
+            }
+
+            return res;
+        }
+
+
+        public async Task<UserStat> UpdateUserStat(User user, UserStat stat)
+        {
+            var statDB = _context.UsersStats
+                .FirstOrDefault(o => stat.UserStatsId == o.UserStatsId);
+            
+            if (statDB.UserId != user.UserId) throw new AuthenticationException();
+
+            if (stat.Key != null)
+                statDB.Key = stat.Key;
+            if (stat.Value != null)
+                statDB.Value = stat.Value;
+            if (stat.StatsCategoryId != null)
+                statDB.StatsCategoryId = stat.StatsCategoryId;
+
+            _context.UsersStats.Update(statDB);
+            await _context.SaveChangesAsync();
+
+            return _context.UsersStats.FirstOrDefault(o => o.UserStatsId == stat.UserStatsId);
+        }
+
+        public async Task<UserStat> RemoveUserStat(User user, Guid statId)
+        {
+            var stat = _context.UsersStats.FirstOrDefault(o => o.UserStatsId == statId);
+
+            if (stat.UserId != user.UserId) throw new AuthenticationException();
+
+            _context.UsersStats.Remove(stat);
+            await _context.SaveChangesAsync();
+
+            return stat;
         }
 
 

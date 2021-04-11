@@ -1,0 +1,34 @@
+
+GET {{$dotenv %url}}/api/user/options HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+###
+
+GET {{$dotenv %url}}/api/user/options/test HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+###
+POST {{$dotenv %url}}/api/user/options HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "key" : "test2",
+    "value" : "testval3"
+}
+
+
+###
+PUT {{$dotenv %url}}/api/user/options/2efa2dd3-4304-4f2f-96ec-f541d111f857 HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "key" : "tewst5"
+}
+
+###
+
+DELETE {{$dotenv %url}}/api/user/options/a005d1dc-cb35-419a-befd-f05792a799f8 HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json

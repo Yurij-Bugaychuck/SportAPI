@@ -43,14 +43,52 @@ namespace SportAPI.Controllers
             return Ok(UsersStats);
         }
 
+
+        [HttpGet("category/{categoryId}")]
+        public async Task<IActionResult> GetStatsByCategory(Guid categoryId)
+        {
+            User user = _userService.GetByEmail(User.Identity.Name);
+            var UsersStats = _userService.GetUserStatByCategory(user, categoryId);
+
+            return Ok(UsersStats);
+        }
+
+
+
+
+
         [HttpPost]
-        public async Task<IActionResult> AddStatsByName([FromBody] UserStat stat)
+        public async Task<IActionResult> AddStatsByName([Bind("Key,Value,StatsCategoryId")] UserStat stat)
         {
             User user = _userService.GetByEmail(User.Identity.Name);
 
-            var stats = _userService.AddUserStat(user, stat);
+            var stats = await _userService.AddUserStat(user, stat);
 
             return Ok(stats);
+        }
+
+        [HttpPut("{statId}")]
+        public async Task<IActionResult> UpdateOption(Guid statId, [Bind("key,value,StatsCategoryId")] UserStat stat)
+        {
+            if (stat.Key == null) throw new ArgumentNullException();
+            User user = _userService.GetByEmail(User.Identity.Name);
+
+            stat.UserStatsId = statId;
+
+
+            stat = await _userService.UpdateUserStat(user, stat);
+
+            return Ok(stat);
+        }
+
+        [HttpDelete("{statId}")]
+        public async Task<IActionResult> RemoveOption(Guid statId)
+        {
+            User user = _userService.GetByEmail(User.Identity.Name);
+
+            var stat = await _userService.RemoveUserStat(user, statId);
+
+            return Ok("deleted");
         }
     }
 }

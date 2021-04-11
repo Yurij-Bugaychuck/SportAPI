@@ -4,7 +4,6 @@ namespace SportAPI.Models
 {
     public class SportContext : DbContext
     {
-        public DbSet<Message> Messages { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserStat> UsersStats { get; set; }
         public DbSet<UserOption> UsersOptions { get; set; }

@@ -14,12 +14,18 @@ namespace SportAPI.Interfaces
 
         Task<User> UpdateUser(User userDB, User user);
         Task<UserOption> AddUserOption(User userDB, UserOption option);
-        Dictionary<string, string> GetUserOptions(User userDB);
+        Task<UserOption> UpdateUserOption(User userDB, UserOption option);
+        Task<UserOption> RemoveUserOption(User userDB, Guid optionId);
+        List<UserOption> GetUserOptions(User userDB);
         List<UserOption> GetUserOptionByKey(User user, string key);
 
 
         Task<UserStat> AddUserStat(User userDB, UserStat option);
-        Dictionary<string, int> GetUserStats(User userDB);
+        Task<UserStat> UpdateUserStat(User userDB, UserStat option);
+        Task<UserStat> RemoveUserStat(User userDB, Guid statId);
+        List<UserStat> GetUserStats(User userDB);
         List<UserStat> GetUserStatByKey(User user, string key);
+
+        List<UserStat> GetUserStatByCategory(User user, Guid categoryId);
     }
 }

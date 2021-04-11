@@ -31,8 +31,8 @@ namespace SportAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
 
+            User user = _userService.GetByEmail(User.Identity.Name);
             var userOptions = _userService.GetUserOptions(user);
 
             return Ok(userOptions);
@@ -49,13 +49,40 @@ namespace SportAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddOption([FromBody] UserOption option )
+        public async Task<IActionResult> AddOption([Bind("Key,Value")] UserOption option )
         {
+            //return Ok(option);
+            if (option.Key == null) throw new ArgumentNullException();
             User user = _userService.GetByEmail(User.Identity.Name);
 
             option = await _userService.AddUserOption(user, option);
 
             return Ok(option);
+        }
+
+        [HttpPut("{optionId}")]
+        public async Task<IActionResult> UpdateOption(Guid optionId, [Bind("key,value")] UserOption option)
+        {
+           
+            if (option.Key == null) throw new ArgumentNullException();
+            User user = _userService.GetByEmail(User.Identity.Name);
+
+            option.UserOptionsId = optionId;
+
+
+            option = await _userService.UpdateUserOption(user, option);
+
+            return Ok(option);
+        }
+
+        [HttpDelete("{optionId}")]
+        public async Task<IActionResult> RemoveOption(Guid optionId)
+        {
+            User user = _userService.GetByEmail(User.Identity.Name);
+
+            var option = await _userService.RemoveUserOption(user, optionId);
+
+            return Ok("deleted");
         }
 
 

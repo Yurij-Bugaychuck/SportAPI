@@ -12,6 +12,12 @@ using System.Threading.Tasks;
 namespace SportAPI.Controllers
 {
     [ApiController]
+
+
+    public class Credentials
+    {
+        public string Email { get; set; }
+    }
     public class AccountController : ControllerBase
     {
         private readonly SportContext _context;
@@ -23,9 +29,9 @@ namespace SportAPI.Controllers
         }
 
         [HttpPost("/token")]
-        public async Task<IActionResult> Token(string email)
+        public async Task<IActionResult> Token([FromBody] [Bind("Email")] Credentials credentials)
         {
-            var identity = GetIdentity(email);
+            var identity = GetIdentity(credentials.Email);
             if (identity == null)
             {
                 return BadRequest(new { errorText = "Invalid username or password." });
@@ -52,7 +58,7 @@ namespace SportAPI.Controllers
         }
 
         [HttpPost("/register")]
-        public async Task<IActionResult> Create([Bind("Username,Email,First_name,Last_name,Phone")] User user)
+        public async Task<IActionResult> Create([Bind("FirstName,LastName,Phone")] User user)
         {
             try
             {

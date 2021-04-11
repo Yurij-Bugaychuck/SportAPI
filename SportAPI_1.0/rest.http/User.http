@@ -1,0 +1,17 @@
+GET {{$dotenv %url}}/api/user HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+###
+GET {{$dotenv %url}}/api/user/9518e064-f03a-4eb7-c758-08d8f43ac567 HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+###
+PUT {{$dotenv %url}}/api/user HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+  "firstName": "Test4",
+  "lastName": "32",
+  "phone": "+38000000004"
+}

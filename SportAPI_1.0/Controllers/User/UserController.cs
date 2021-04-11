@@ -33,17 +33,11 @@ namespace SportAPI.Controllers
 
         // GET: Users List
         [Authorize]
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> Get()
         {
             User user = _userService.GetByEmail(User.Identity.Name);
             return Ok(user);
-        }
-        
-        [HttpPost]
-        public async Task<IActionResult> Index([FromBody] User user)
-        {
-            Guid userId = await _userService.CreateUser(user);
-            return Ok(userId);
         }
 
 
@@ -75,18 +69,13 @@ namespace SportAPI.Controllers
             return Ok(ImgPath);
         }
 
-        // GET: Get User By Id
         [Authorize]
-        [HttpGet("{id}")]
-        public async Task<IActionResult> getuser(Guid? id)
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserById( Guid userId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var user = _userService.GetById((Guid)id);
-            {
+            var user = _userService.GetById(userId);
+            if (user == null){
                 return NotFound();
             }
 
@@ -99,7 +88,7 @@ namespace SportAPI.Controllers
         //PUT: Edit User
         [HttpPut]
        
-        public async Task<IActionResult> Edit([FromBody] User user)
+        public async Task<IActionResult> Edit([Bind("FirstName,LastName,Phone")] User user)
         {
             User userDB = _userService.GetByEmail(User.Identity.Name);
 

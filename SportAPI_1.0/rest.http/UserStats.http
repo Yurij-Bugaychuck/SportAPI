@@ -1,0 +1,40 @@
+GET {{$dotenv %url}}/api/user/stats HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+###
+
+GET {{$dotenv %url}}/api/user/stats/test2 HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+
+###
+
+GET {{$dotenv %url}}/api/user/stats/category/00fe3f17-4bff-427e-83b1-a76d28018c75 HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+###
+POST {{$dotenv %url}}/api/user/stats HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "key" : "tewst6",
+    "value" : 2,
+    "StatsCategoryId": "00fe3f17-4bff-427e-83b1-a76d28018c75"
+}
+
+
+###
+PUT {{$dotenv %url}}/api/user/stats/1c9935c9-6c76-415d-a708-8a044e2ee9f5 HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "key" : "tewst26"
+}
+
+###
+
+DELETE {{$dotenv %url}}/api/user/stats/1c9935c9-6c76-415d-a708-8a044e2ee9f5 HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json

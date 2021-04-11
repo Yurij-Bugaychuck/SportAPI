@@ -1,0 +1,21 @@
+POST {{$dotenv %url}}/token HTTP/1.1
+Content-Type: application/json
+
+{
+  "Email": "test4@gm.ua"
+}
+
+
+###
+
+### Only in dev
+POST {{$dotenv %url}}/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "test_2",
+  "email": "test6@gm.ua",
+  "firstName": "Test2",
+  "lastName": "3",
+  "phone": "+38000000002"
+}
