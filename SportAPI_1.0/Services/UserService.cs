@@ -6,15 +6,22 @@ using System.Data.Entity;
 using SportAPI.Interfaces;
 using SportAPI.Models;
 using System.Security.Authentication;
-
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Routing;
 namespace SportAPI.Services
 {
     public class UserService : IUserService, ISecurityService
     {
         SportContext _context;
-        public UserService(SportContext dbContext)
+        ImageService _imageService;
+        IWebHostEnvironment _appEnvironment;
+        public UserService(SportContext dbContext, ImageService imageService, IWebHostEnvironment appEnvironment)
         {
             _context = dbContext;
+            _imageService = imageService;
+            _appEnvironment = appEnvironment;
         }
 
         public bool CanRead<UserOption>(User user, UserOption userOption)
@@ -162,9 +169,9 @@ namespace SportAPI.Services
         {
             var userStats = _context.UsersStats
                 .Where(o => o.UserId == user.UserId && o.Key == key)
-                .OrderBy(o => o.CreatedAt)
+                .OrderByDescending(o => o.CreatedAt)
                 .ToList();
-
+            
             return userStats;
         }
 
@@ -217,6 +224,50 @@ namespace SportAPI.Services
             await _context.SaveChangesAsync();
 
             return stat;
+        }
+
+        public async Task<UserOption> NewAvatar(User user, IFormFile image)
+        {
+            var avatarsCount = GetAvatars(user).Count;
+
+            string StartPath = Path.Combine(
+                _appEnvironment.WebRootPath,
+                "UsersAvatar",
+                user.UserId.ToString());
+
+
+            string ImgPath = await _imageService.newImage(StartPath, image, avatarsCount);
+
+            string FileExt = System.IO.Path.GetExtension(image.FileName).ToLower();
+
+            string resUrl = "UsersAvatar/"+ user.UserId.ToString() + "/avatar-" + avatarsCount.ToString() + FileExt;
+
+            var ImgOption = new UserOption { Key = "avatar", Value = resUrl };
+
+            var res = await AddUserOption(user, ImgOption);
+
+            return ImgOption;
+        }
+        public UserOption GetAvatar(User user)
+        {
+            var avatar = GetUserOptionByKey(user, "avatar").OrderByDescending(o => o.CreatedAt).FirstOrDefault();
+
+            if (avatar == null)
+            {
+                string defaultPath = "UsersAvatar/default.png";
+                avatar = new UserOption
+                {
+                    Key = "avatar",
+                    Value = defaultPath
+                };
+            }
+            return avatar;
+        }
+        public List<UserOption> GetAvatars(User user)
+        {
+            var avatars = GetUserOptionByKey(user, "avatar");
+
+            return avatars;
         }
 
 

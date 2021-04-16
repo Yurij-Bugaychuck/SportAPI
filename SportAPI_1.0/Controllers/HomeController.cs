@@ -10,6 +10,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using System;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SportAPI.Controllers
 {
@@ -18,10 +21,11 @@ namespace SportAPI.Controllers
     public class HomeController : ControllerBase
     {
         private readonly SportContext _context;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public HomeController(SportContext context)
+        public HomeController(SportContext context, IWebHostEnvironment hostingEnvironment)
         {
-            
+            _hostingEnvironment = hostingEnvironment;
             _context = context;
         }
 
@@ -38,7 +42,7 @@ namespace SportAPI.Controllers
                 return NotFound("Not found");
             }
         }
-        
-      
+
+
     }
 }

@@ -14,6 +14,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using SportAPI.Services;
 using SportAPI.Interfaces;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using System.Diagnostics;
+using System.Security.Authentication;
 namespace SportAPI
 {
     public class Startup
@@ -74,8 +78,8 @@ namespace SportAPI
                         };  
                     });
 
-            services.AddTransient<ImageService>();
-            services.AddTransient<IUserService, UserService>();
+           
+            services.AddCustomServices();
             services.AddControllers();
 
            
@@ -94,7 +98,9 @@ namespace SportAPI
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+
+
+
 
             app.UseRouting();
 
@@ -102,6 +108,10 @@ namespace SportAPI
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseStaticFiles();
+
+
+
 
 
             app.UseEndpoints(endpoints =>

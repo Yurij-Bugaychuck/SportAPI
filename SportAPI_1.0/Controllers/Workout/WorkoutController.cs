@@ -21,13 +21,11 @@ namespace SportAPI.Controllers
     public class WorkoutController : ControllerBase
     {
         private readonly SportContext _context;
-        private readonly IWebHostEnvironment _appEnvironment;
         private readonly IWorkoutService _workoutService;
         private readonly IUserService _userService;
-        public WorkoutController(SportContext context, IWebHostEnvironment appEnvironment, IUserService userService, IWorkoutService workoutService)
+        public WorkoutController(SportContext context, IUserService userService, IWorkoutService workoutService)
         {
             _context = context;
-            _appEnvironment = appEnvironment;
             _workoutService = workoutService;
             _userService = userService;
 
@@ -40,6 +38,7 @@ namespace SportAPI.Controllers
         public async Task<IActionResult> Index()
         {
             User user = _userService.GetByEmail(User.Identity.Name);
+            
             var workouts = await _workoutService.GetWorkouts(user);
             return Ok(workouts);
         }

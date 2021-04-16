@@ -13,7 +13,9 @@ namespace SportAPI.Services
         public static IServiceCollection AddCustomServices(this IServiceCollection services)
         {
             services.AddTransient<ImageService>();
+            services.AddTransient<IWorkoutService, WorkoutService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ICategoriesService, CategoriesService>();
 
             return services;
         }

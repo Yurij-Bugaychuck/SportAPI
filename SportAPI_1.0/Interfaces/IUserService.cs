@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using SportAPI.Models;
 namespace SportAPI.Interfaces
 {
@@ -27,5 +28,11 @@ namespace SportAPI.Interfaces
         List<UserStat> GetUserStatByKey(User user, string key);
 
         List<UserStat> GetUserStatByCategory(User user, Guid categoryId);
+
+
+        Task<UserOption> NewAvatar(User user, IFormFile image);
+        UserOption GetAvatar(User user);
+        List<UserOption> GetAvatars(User user);
+
     }
 }

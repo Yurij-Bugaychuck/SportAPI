@@ -1,0 +1,30 @@
+GET {{$dotenv %url}}/api/user/stats/categories HTTP/1.1
+
+### By key
+
+GET {{$dotenv %url}}/api/user/stats/categories/00fe3f17-4bff-427e-83b1-a76d28018c75 HTTP/1.1
+
+
+###
+POST {{$dotenv %url}}/api/user/stats/categories HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "name":"Test3"
+}
+
+
+###
+PUT {{$dotenv %url}}/api/user/stats/categories/2c77714b-7f9a-45fd-8c82-08d8fe7263ff HTTP/1.1
+Content-Type: application/json
+
+{
+    "name":"Test72342342" 
+}
+
+###
+
+DELETE {{$dotenv %url}}/api/user/stats/categories/2c77714b-7f9a-45fd-8c82-08d8fe7263ff HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json

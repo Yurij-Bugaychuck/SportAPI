@@ -16,15 +16,15 @@ namespace SportAPI
     { 
         
         
-        public async Task<string> newImage(String StartPath, IFormFile uploadedFile)
+        public async Task<string> newImage(String StartPath, IFormFile uploadedFile, int avatarCount)
         {
             
             if (!Directory.Exists(StartPath))
             {
                 Directory.CreateDirectory(StartPath);
             }
-
-            string _Path = StartPath + "/" + uploadedFile.FileName;
+            string FileExt = System.IO.Path.GetExtension(uploadedFile.FileName).ToLower();
+            string _Path = StartPath + "/avatar-" + avatarCount.ToString() + FileExt;
 
 
 
@@ -33,7 +33,7 @@ namespace SportAPI
                 await uploadedFile.CopyToAsync(fileStream);
             }
             
-            return Path.GetFullPath(_Path).ToString();
+            return _Path.ToString();
         }
     }
 }

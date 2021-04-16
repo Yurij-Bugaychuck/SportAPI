@@ -6,6 +6,23 @@ GET {{$dotenv %url}}/api/user/9518e064-f03a-4eb7-c758-08d8f43ac567 HTTP/1.1
 Authorization: Bearer {{$dotenv %token}}
 
 ###
+GET {{$dotenv %url}}/api/user/avatar HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+
+###
+POST {{$dotenv %url}}/api/user/avatar HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="7916c575407140bb9bdd680d5b7902ac.png"
+Content-Type: "image/jpeg"
+
+< ./7916c575407140bb9bdd680d5b7902ac.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
 PUT {{$dotenv %url}}/api/user HTTP/1.1
 Authorization: Bearer {{$dotenv %token}}
 Content-Type: application/json

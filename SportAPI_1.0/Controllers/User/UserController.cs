@@ -44,29 +44,43 @@ namespace SportAPI.Controllers
         //POST: Write new Avatar Image to User Options
         [Authorize]
         [HttpPost("avatar")]
-        public async Task<IActionResult> setAvatar(IFormFile? image)
+        public async Task<IActionResult> setAvatar(IFormFile image)
         {
             if (image == null) return StatusCode(404);
+            image = image as IFormFile;
 
+            User user = _userService.GetByEmail(User.Identity.Name);
             string FileExt = System.IO.Path.GetExtension(image.FileName).ToLower();
-            List<String> _extensions = new List<string>{ ".png", ".jpg" };
+            List<String> _extensions = new List<string> { ".png", ".jpg", ".jpeg" };
             if (!_extensions.Contains(FileExt))
-            { 
+            {
                 return StatusCode(413, new { ErrorText = "Avatar supported only in png or jpg" });
             }
 
-            var User = _userService.GetByEmail(HttpContext.User.Identity.Name);
-            
-            string StartPath = Path.Combine(_appEnvironment.WebRootPath, "UsersAvatar", User.UserId.ToString());
-            string ImgPath = await _ImageService.newImage(StartPath, image);
-
-            var ImgOption = new UserOption{ Key = "avatar", Value = ImgPath };
-
-            var res = _userService.AddUserOption(User, ImgOption);
-            
+            var imgOption = await _userService.NewAvatar(user, image);
 
 
-            return Ok(ImgPath);
+            return Ok(imgOption);
+        }
+
+        [Authorize]
+        [HttpGet("avatar")]
+        public async Task<IActionResult> GetAvatar()
+        {
+            User user = _userService.GetByEmail(User.Identity.Name);
+            var avatar = _userService.GetAvatar(user);
+
+            return Ok(avatar);
+        }
+
+        [Authorize]
+        [HttpGet("avatar/list")]
+        public async Task<IActionResult> GetAvatarList()
+        {
+            User user = _userService.GetByEmail(User.Identity.Name);
+            var avatar = _userService.GetAvatars(user);
+
+            return Ok(avatar);
         }
 
         [Authorize]

@@ -14,16 +14,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Authentication;
 namespace SportAPI
 {
-    public class WorkoutService : IWorkoutService, ISecurityService
+    public class WorkoutService : IWorkoutService
     {
         private SportContext _context;
         public WorkoutService(SportContext context)
         {
             _context = context;
-        }
-        public bool CanRead<T>(User user, T t)
-        {
-            return true;
         }
 
         public bool HaveAccessWorkout(User user, Workout workout) {
@@ -46,7 +42,7 @@ namespace SportAPI
 
         public async Task<List<Workout>> GetWorkouts(User user)
         {
-            return await _context.Workouts.Where(o => o.UserId == user.UserId).ToListAsync();
+            return _context.Workouts.Where(o => o.UserId == user.UserId).ToList();
         }
 
         public async Task<Workout> GetWorkoutById(User user, Guid id)

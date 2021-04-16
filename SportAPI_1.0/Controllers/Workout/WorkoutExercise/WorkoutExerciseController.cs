@@ -14,7 +14,7 @@ namespace SportAPI.Controllers
     {
         private readonly IWorkoutService _workoutService;
         private readonly IUserService _userService;
-        public WorkoutExerciseController(IWorkoutService workoutService, IUserService userService)
+        public WorkoutExerciseController(IUserService userService, IWorkoutService workoutService)
         {
             _workoutService = workoutService;
             _userService = userService;
