@@ -27,7 +27,7 @@ namespace SportAPI.Controllers
         }
 
  
-        [HttpGet("/list")]
+        [HttpGet]
         public async Task<IActionResult> Get(Guid workoutId)
         {
             User user = _userService.GetByEmail(User.Identity.Name);

@@ -3,7 +3,7 @@ Authorization: Bearer {{$dotenv %token}}
 
 ### By key
 
-GET {{$dotenv %url}}/api/user/stats/tewst6 HTTP/1.1
+GET {{$dotenv %url}}/api/user/stats/asd HTTP/1.1
 Authorization: Bearer {{$dotenv %token}}
 
 

@@ -257,17 +257,53 @@ namespace SportAPI.Services
                 string defaultPath = "UsersAvatar/default.png";
                 avatar = new UserOption
                 {
+                    UserId = user.UserId,
                     Key = "avatar",
                     Value = defaultPath
                 };
             }
             return avatar;
         }
+
+
         public List<UserOption> GetAvatars(User user)
         {
             var avatars = GetUserOptionByKey(user, "avatar");
 
             return avatars;
+        }
+
+        public UserOption GetAbout(User user)
+        {
+            var about = GetUserOptionByKey(user, "about").FirstOrDefault();
+
+            if (about == null)
+            {
+                string defaultValue = "...";
+                about = new UserOption
+                {
+                    UserId = user.UserId,
+                    Key = "about",
+                    Value = defaultValue
+                };
+
+                _context.UsersOptions.Add(about);
+                _context.SaveChanges();
+            }
+            return about;
+        }
+
+        public UserOption AddAbout(User user, string aboutValue)
+        {
+            var about = GetAbout(user);
+
+            about.Value = aboutValue;
+
+            _context.UsersOptions.Update(about);
+            _context.SaveChanges();
+
+            
+            return about;
         }
 
 

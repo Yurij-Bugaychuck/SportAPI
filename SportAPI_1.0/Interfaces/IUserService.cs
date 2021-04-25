@@ -34,5 +34,8 @@ namespace SportAPI.Interfaces
         UserOption GetAvatar(User user);
         List<UserOption> GetAvatars(User user);
 
+        UserOption AddAbout(User user, string aboutValue);
+        UserOption GetAbout(User user);
+
     }
 }

@@ -13,11 +13,7 @@ using SportAPI.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using SportAPI.Services;
-using SportAPI.Interfaces;
-using Microsoft.Extensions.FileProviders;
-using System.IO;
-using System.Diagnostics;
-using System.Security.Authentication;
+using SportAPI.Middlewares;
 namespace SportAPI
 {
     public class Startup
@@ -103,12 +99,14 @@ namespace SportAPI
 
 
             app.UseRouting();
+            app.UseMiddleware<ErrorHandlerMiddleware>();
 
-           
 
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseStaticFiles();
+
+
 
 
 

@@ -52,18 +52,18 @@ namespace SportAPI.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> Index([FromForm] Workout workout)
+        public async Task<IActionResult> Index([Bind("Name,About,IsPublished")] Workout workout)
         {
             User user = _userService.GetByEmail(User.Identity.Name);
 
             var res = await _workoutService.AddWorkout(user, workout);
             return Ok(res);
-        }
+        }   
 
         //PUT: Edit User
         [HttpPut]
        
-        public async Task<IActionResult> Edit([FromForm] Workout workout)
+        public async Task<IActionResult> Edit([Bind("WorkoutId,Name,About,IsPublished")] Workout workout)
         {
             User user = _userService.GetByEmail(User.Identity.Name);
 
@@ -73,13 +73,18 @@ namespace SportAPI.Controllers
         }
 
         // HttpDelete: Delete Workout
-        [HttpDelete]
+        [HttpDelete("{workoutId}")]
         public async Task<IActionResult> Delete(Guid workoutId)
         {
 
+            
+
             User user = _userService.GetByEmail(User.Identity.Name);
 
-            _workoutService.DeleteWorkout(user, workoutId);
+           
+             _workoutService.DeleteWorkout(user, workoutId);
+            
+
 
             return Ok(workoutId);
         }

@@ -74,6 +74,27 @@ namespace SportAPI.Controllers
         }
 
         [Authorize]
+        [HttpGet("about")]
+        public async Task<IActionResult> GetAbout()
+        {
+            User user = _userService.GetByEmail(User.Identity.Name);
+            var about = _userService.GetAbout(user);
+
+            return Ok(about);
+        }
+
+        [Authorize]
+        [HttpPost("about")]
+        public async Task<IActionResult> PostAbout([FromBody] string aboutValue)
+        {
+            Debug.WriteLine("KEEEEEEEEEK----> " + aboutValue);
+            User user = _userService.GetByEmail(User.Identity.Name);
+            var about = _userService.AddAbout(user, aboutValue);
+
+            return Ok(about);
+        }
+
+        [Authorize]
         [HttpGet("avatar/list")]
         public async Task<IActionResult> GetAvatarList()
         {

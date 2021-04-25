@@ -12,6 +12,8 @@ using SportAPI.Interfaces;
 using System.Data.Entity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Authentication;
+using System.Data.Entity.Core;
+
 namespace SportAPI
 {
     public class WorkoutService : IWorkoutService
@@ -63,7 +65,22 @@ namespace SportAPI
         {
 
             workout.UserId = user.UserId;
-            _context.Workouts.Update(workout);
+            
+
+            var workoutdb = _context.Workouts
+                .FirstOrDefault(o => o.WorkoutId == workout.WorkoutId && user.UserId == o.UserId);
+
+            if (workoutdb == null) throw new AuthenticationException();
+
+            if (workout.Name != null)
+                workoutdb.Name = workout.Name;
+            if (workout.About != null)
+                workoutdb.About = workout.About;
+            if (workout.IsPublished != null)
+                workoutdb.IsPublished = workout.IsPublished;
+
+
+            _context.Workouts.Update(workoutdb);
             await _context.SaveChangesAsync();
 
             return workout;
@@ -72,23 +89,26 @@ namespace SportAPI
 
         }
 
-        public async void DeleteWorkout(User user, Guid workoutID)
+        public void DeleteWorkout(User user, Guid workoutID)
         {
-            var workoutDB = await _context.Workouts.FirstOrDefaultAsync(o => o.WorkoutId == workoutID);
+            var workoutDB = _context.Workouts.FirstOrDefault(o => o.WorkoutId == workoutID);
+
+            if (workoutDB == null)
+            {
+                throw new KeyNotFoundException();
+            }
 
             if (workoutDB.UserId != user.UserId) throw new AuthenticationException();
 
             _context.Workouts.Remove(workoutDB);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
         public async Task<List<WorkoutOption>> GetWorkoutOptions(User user, Guid workoutId)
         {
+            if (!HaveAccessWorkout(user, workoutId)) throw new AuthenticationException();
 
-            var workoutDB = _context.Workouts.Include(o => o.Options).FirstOrDefault(o => o.WorkoutId == workoutId && user.UserId == o.UserId);
-
-            var workoutOptions = workoutDB.Options;
-
+            var workoutOptions = _context.WorkoutsOptions.Where(o => o.WorkoutId == workoutId).ToList();
 
             return workoutOptions;
         }
@@ -96,12 +116,9 @@ namespace SportAPI
         public async Task<List<WorkoutOption>> GetWorkoutOptionByKey(User user, Guid workoutId, string key)
         {
 
-            var workoutDB = _context.Workouts.Include(o => o.Options).FirstOrDefault(o => o.WorkoutId == workoutId && user.UserId == o.UserId);
+            if (!HaveAccessWorkout(user, workoutId)) throw new AuthenticationException();
 
-            if (workoutDB == null) throw new KeyNotFoundException();
-            if (workoutDB.UserId != user.UserId) throw new AuthenticationException();
-
-            var workoutOptions = workoutDB.Options.Where(o => o.Key == key).ToList();
+            var workoutOptions = _context.WorkoutsOptions.Where(o => o.WorkoutId == workoutId && o.Key == key).ToList();
 
             return workoutOptions;
         }

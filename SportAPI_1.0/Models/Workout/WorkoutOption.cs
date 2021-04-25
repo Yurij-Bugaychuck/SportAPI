@@ -13,7 +13,7 @@ namespace SportAPI.Models
         public Guid WorkoutOptionId { get; set; }
         public Guid WorkoutId { get; set; }
         [ForeignKey("WorkoutId")]
-        public Workout Workout { get; set; }
+       
 
 
         public string Key { get; set; }

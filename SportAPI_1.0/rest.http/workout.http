@@ -1,0 +1,38 @@
+###
+GET {{$dotenv %url}}/api/workout HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+
+###
+GET {{$dotenv %url}}/api/workout/{id} HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+###
+POST {{$dotenv %url}}/api/workout HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "Name" : "Workout1",
+    "About" : "About text workout",
+    "IsPublished": true
+}
+
+###
+PUT {{$dotenv %url}}/api/workout HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "WorkoutId": "bc4421e9-13eb-462d-6034-08d904d2ccbe",
+    "Name" : "Workout12",
+    "About" : "About texasdasdsat workout",
+    "IsPublished": true
+}
+
+
+###
+DELETE {{$dotenv %url}}/api/workout/8d688813-93ed-44e6-9b80-08d904d2aebe HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+

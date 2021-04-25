@@ -32,3 +32,13 @@ Content-Type: application/json
   "lastName": "32",
   "phone": "+38000000004"
 }
+
+###
+GET {{$dotenv %url}}/api/user/about HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+###
+POST {{$dotenv %url}}/api/user/about HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+"asdasdads"
