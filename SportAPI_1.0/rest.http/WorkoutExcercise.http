@@ -1,0 +1,39 @@
+###
+GET {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+
+###
+GET {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises/{id} HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+###
+POST {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "IsSet" : false,
+    "Order" : 4,
+    "Name": "pushup",
+    "About": "About Ex"
+}
+
+###
+PUT {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises/5e237ec7-cd69-430c-b4d4-ed0b7eaf932b HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "IsSet" : false,
+    "Order" : 2,
+    "Name": "pushup",
+    "About": "About Ex"
+}
+
+
+###
+DELETE {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises/{exerciseId} HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+

@@ -44,7 +44,7 @@ namespace SportAPI.Controllers
             
             User user = _userService.GetByEmail(User.Identity.Name);
 
-            var workoutOptionsByKey = _workoutService.GetWorkoutOptionByKey(user, workoutId, key);
+            var workoutOptionsByKey = await _workoutService.GetWorkoutOptionByKey(user, workoutId, key);
 
             return Ok(workoutOptionsByKey);
         }

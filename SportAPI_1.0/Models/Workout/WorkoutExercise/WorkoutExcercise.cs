@@ -10,10 +10,9 @@ namespace SportAPI.Models
     public class WorkoutExcercise
     {
         [Key]
-        public Guid WorkoutExcerciseId { get; set; }
+        public Guid WorkoutExcerciseId { get; set; } = Guid.NewGuid();
         public Guid WorkoutId { get; set; }
         [ForeignKey("WorkoutId")]
-        public Workout Workout { get; set; }
 
         public bool IsSet { get; set; } = false;
 

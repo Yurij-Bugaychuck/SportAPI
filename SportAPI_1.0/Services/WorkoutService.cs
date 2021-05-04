@@ -168,27 +168,30 @@ namespace SportAPI
         }
 
 
-        public async Task<List<WorkoutExcercise>> GetWorkoutExercises(User user, Guid workoutId)
+        public List<WorkoutExcercise> GetWorkoutExercises(User user, Guid workoutId)
         {
-            var workout = await _context.Workouts.Include(o => o.Excercises).FirstOrDefaultAsync(o => o.WorkoutId == workoutId);
+            var workout = _context.Workouts.FirstOrDefault(o => o.WorkoutId == workoutId);
+            
+            if (workout == null) throw new KeyNotFoundException();
+            if (!HaveAccessWorkout(user, workout)) throw new AuthenticationException();
 
-            if (HaveAccessWorkout(user, workout))
-            {
-                return workout.Excercises.OrderBy(o=>o.Order).ToList();
-            }
-            else
-            {
-                throw new AuthenticationException();
-            }
+            var excercises = _context.WorkoutsExcercises.Where(o => o.WorkoutId == workout.WorkoutId)
+                .OrderBy(o => o.Order).AsEnumerable().ToList();
+
+            return excercises;
+
+
+
+          
         }
 
-        public async Task<WorkoutExcercise> GetWorkoutExerciseById(User user, Guid workoutId, Guid exerciseId)
+        public WorkoutExcercise GetWorkoutExerciseById(User user, Guid workoutId, Guid exerciseId)
         {
-            var workout = await _context.Workouts.Include(o => o.Excercises).FirstOrDefaultAsync(o => o.WorkoutId == workoutId);
+            var workout = _context.Workouts.FirstOrDefault(o => o.WorkoutId == workoutId);
 
             if (HaveAccessWorkout(user, workout))
             {
-                var exercise = workout.Excercises.FirstOrDefault(o => o.WorkoutExcerciseId == exerciseId);
+                var exercise = _context.WorkoutsExcercises.FirstOrDefault(o => o.WorkoutExcerciseId == exerciseId);
                 return exercise;
             }
             else
@@ -197,13 +200,13 @@ namespace SportAPI
             }
         }
 
-        public async Task<WorkoutExcercise> AddWorkoutExercise(User user, WorkoutExcercise exercise)
+        public WorkoutExcercise AddWorkoutExercise(User user, WorkoutExcercise exercise)
         {
-            var workout = await _context.Workouts.Include(o => o.Excercises).FirstOrDefaultAsync(o => o.WorkoutId == exercise.WorkoutId);
+            var workout = _context.Workouts.FirstOrDefault(o => o.WorkoutId == exercise.WorkoutId);
             if (HaveAccessWorkout(user, workout))
             {
                 _context.WorkoutsExcercises.Add(exercise);
-                await _context.SaveChangesAsync();
+                 _context.SaveChanges();
 
                 return exercise;
             }
@@ -213,29 +216,39 @@ namespace SportAPI
             }
         }
 
-        public async Task<WorkoutExcercise> UpdateWorkoutExercise(User user, WorkoutExcercise exercise)
+        public WorkoutExcercise UpdateWorkoutExercise(User user, WorkoutExcercise exercise)
         {
-            var workout = await _context.Workouts.Include(o => o.Excercises).FirstOrDefaultAsync(o => o.WorkoutId == exercise.WorkoutId);
-            if (HaveAccessWorkout(user, workout))
-            {
-                _context.WorkoutsExcercises.Update(exercise);
-                await _context.SaveChangesAsync();
+            var workout =  _context.Workouts.FirstOrDefault(o => o.WorkoutId == exercise.WorkoutId);
 
-                return exercise;
-            }
-            else
-            {
-                throw new AuthenticationException();
-            }
+            if (workout == null) throw new KeyNotFoundException();
+            if (!HaveAccessWorkout(user, workout)) throw new AuthenticationException();
+
+            var excerciseDb = _context.WorkoutsExcercises.FirstOrDefault(o => o.WorkoutExcerciseId == exercise.WorkoutExcerciseId);
+
+            excerciseDb.IsSet = exercise.IsSet;
+
+            if (exercise.Name != null)
+                excerciseDb.Name = exercise.Name;
+
+            if (exercise.About != null)
+                excerciseDb.About = exercise.About;
+
+            excerciseDb.Order = exercise.Order;
+
+            _context.WorkoutsExcercises.Update(excerciseDb);
+            _context.SaveChanges();
+
+            return excerciseDb;
         }
 
-        public async Task<WorkoutExcercise> RemoveWorkoutExercise(User user, WorkoutExcercise exercise)
+        public WorkoutExcercise RemoveWorkoutExercise(User user, WorkoutExcercise exercise)
         {
-            var workout = await _context.Workouts.Include(o => o.Excercises).FirstOrDefaultAsync(o => o.WorkoutId == exercise.WorkoutId);
+            var workout = _context.Workouts.FirstOrDefault(o => o.WorkoutId == exercise.WorkoutId);
             if (HaveAccessWorkout(user, workout))
             {
+                
                 _context.WorkoutsExcercises.Remove(exercise);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
 
                 return exercise;
             }
