@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SportAPI.Models;
+using SportAPI;
 
 namespace SportAPI.Migrations
 {
@@ -16,10 +16,10 @@ namespace SportAPI.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.3")
+                .HasAnnotation("ProductVersion", "5.0.4")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("SportAPI.Models.StatsCategories", b =>
+            modelBuilder.Entity("SportAPI.Models.StatsCategory", b =>
                 {
                     b.Property<Guid>("StatsCategoryId")
                         .ValueGeneratedOnAdd()
@@ -123,9 +123,6 @@ namespace SportAPI.Migrations
                     b.Property<string>("Key")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("StatsCategoriesStatsCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("StatsCategoryId")
                         .HasColumnType("uniqueidentifier");
 
@@ -137,7 +134,7 @@ namespace SportAPI.Migrations
 
                     b.HasKey("UserStatsId");
 
-                    b.HasIndex("StatsCategoriesStatsCategoryId");
+                    b.HasIndex("StatsCategoryId");
 
                     b.HasIndex("UserId");
 
@@ -272,12 +269,17 @@ namespace SportAPI.Migrations
                     b.Property<int>("Value")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("WorkoutExcerciseId")
+                    b.Property<Guid?>("WorkoutExcerciseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("WorkoutExcerciseId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("WorkoutExcerciseOptionId");
 
                     b.HasIndex("WorkoutExcerciseId");
+
+                    b.HasIndex("WorkoutExcerciseId1");
 
                     b.ToTable("WorkoutsExcercisesOptions");
                 });
@@ -317,9 +319,9 @@ namespace SportAPI.Migrations
 
             modelBuilder.Entity("SportAPI.Models.UserStat", b =>
                 {
-                    b.HasOne("SportAPI.Models.StatsCategories", null)
+                    b.HasOne("SportAPI.Models.StatsCategory", null)
                         .WithMany("UsersStatsInCategory")
-                        .HasForeignKey("StatsCategoriesStatsCategoryId");
+                        .HasForeignKey("StatsCategoryId");
 
                     b.HasOne("SportAPI.Models.User", null)
                         .WithMany("Stats")
@@ -339,13 +341,11 @@ namespace SportAPI.Migrations
 
             modelBuilder.Entity("SportAPI.Models.WorkoutExcercise", b =>
                 {
-                    b.HasOne("SportAPI.Models.Workout", "Workout")
+                    b.HasOne("SportAPI.Models.Workout", null)
                         .WithMany("Excercises")
                         .HasForeignKey("WorkoutId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Workout");
                 });
 
             modelBuilder.Entity("SportAPI.Models.WorkoutExcerciseCategory", b =>
@@ -369,27 +369,27 @@ namespace SportAPI.Migrations
 
             modelBuilder.Entity("SportAPI.Models.WorkoutExcerciseOption", b =>
                 {
-                    b.HasOne("SportAPI.Models.WorkoutExcercise", "Excercise")
+                    b.HasOne("SportAPI.Models.WorkoutExcercise", "WorkoutExcercise")
                         .WithMany("Options")
-                        .HasForeignKey("WorkoutExcerciseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WorkoutExcerciseId");
 
-                    b.Navigation("Excercise");
+                    b.HasOne("SportAPI.Models.WorkoutExcercise", null)
+                        .WithMany()
+                        .HasForeignKey("WorkoutExcerciseId1");
+
+                    b.Navigation("WorkoutExcercise");
                 });
 
             modelBuilder.Entity("SportAPI.Models.WorkoutOption", b =>
                 {
-                    b.HasOne("SportAPI.Models.Workout", "Workout")
+                    b.HasOne("SportAPI.Models.Workout", null)
                         .WithMany("Options")
                         .HasForeignKey("WorkoutId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Workout");
                 });
 
-            modelBuilder.Entity("SportAPI.Models.StatsCategories", b =>
+            modelBuilder.Entity("SportAPI.Models.StatsCategory", b =>
                 {
                     b.Navigation("UsersStatsInCategory");
                 });

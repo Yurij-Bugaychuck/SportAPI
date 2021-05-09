@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace SportAPI.Models
 {
    
-    public class StatsCategories
+    public class StatsCategory
     {
         [Key]
         public Guid StatsCategoryId { get; set; }

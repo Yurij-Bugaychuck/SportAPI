@@ -3,23 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SportAPI.Migrations
 {
-    public partial class myf : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Messages",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Messages", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "StatsCategories",
                 columns: table => new
@@ -93,15 +80,14 @@ namespace SportAPI.Migrations
                     Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Value = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StatsCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    StatsCategoriesStatsCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    StatsCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UsersStats", x => x.UserStatsId);
                     table.ForeignKey(
-                        name: "FK_UsersStats_StatsCategories_StatsCategoriesStatsCategoryId",
-                        column: x => x.StatsCategoriesStatsCategoryId,
+                        name: "FK_UsersStats_StatsCategories_StatsCategoryId",
+                        column: x => x.StatsCategoryId,
                         principalTable: "StatsCategories",
                         principalColumn: "StatsCategoryId",
                         onDelete: ReferentialAction.Restrict);
@@ -212,10 +198,11 @@ namespace SportAPI.Migrations
                 columns: table => new
                 {
                     WorkoutExcerciseOptionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    WorkoutExcerciseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    WorkoutExcerciseId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Key = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Value = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    WorkoutExcerciseId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -225,7 +212,13 @@ namespace SportAPI.Migrations
                         column: x => x.WorkoutExcerciseId,
                         principalTable: "WorkoutsExcercises",
                         principalColumn: "WorkoutExcerciseId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkoutsExcercisesOptions_WorkoutsExcercises_WorkoutExcerciseId1",
+                        column: x => x.WorkoutExcerciseId1,
+                        principalTable: "WorkoutsExcercises",
+                        principalColumn: "WorkoutExcerciseId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -255,9 +248,9 @@ namespace SportAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UsersStats_StatsCategoriesStatsCategoryId",
+                name: "IX_UsersStats_StatsCategoryId",
                 table: "UsersStats",
-                column: "StatsCategoriesStatsCategoryId");
+                column: "StatsCategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UsersStats_UserId",
@@ -290,6 +283,11 @@ namespace SportAPI.Migrations
                 column: "WorkoutExcerciseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_WorkoutsExcercisesOptions_WorkoutExcerciseId1",
+                table: "WorkoutsExcercisesOptions",
+                column: "WorkoutExcerciseId1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_WorkoutsOptions_WorkoutId",
                 table: "WorkoutsOptions",
                 column: "WorkoutId");
@@ -297,9 +295,6 @@ namespace SportAPI.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Messages");
-
             migrationBuilder.DropTable(
                 name: "UsersOptions");
 

@@ -13,7 +13,7 @@ Authorization: Bearer {{$dotenv %token}}
 Content-Type: application/json
 
 {
-    "Name" : "Workout1",
+    "Name" : "Workout2",
     "About" : "About text workout",
     "IsPublished": true
 }

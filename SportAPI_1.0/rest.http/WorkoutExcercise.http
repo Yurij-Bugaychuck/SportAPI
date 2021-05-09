@@ -1,39 +1,82 @@
 ###
-GET {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises HTTP/1.1
+GET {{$dotenv %url}}/api/workout/3d9471dd-f7d5-4b5f-0736-08d9115f1f17/exercises HTTP/1.1
 Authorization: Bearer {{$dotenv %token}}
 
 
 ###
-GET {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises/{id} HTTP/1.1
+GET {{$dotenv %url}}/api/workout/3d9471dd-f7d5-4b5f-0736-08d9115f1f17/exercises/{id} HTTP/1.1
 Authorization: Bearer {{$dotenv %token}}
 
 ###
-POST {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises HTTP/1.1
+POST {{$dotenv %url}}/api/workout/3d9471dd-f7d5-4b5f-0736-08d9115f1f17/exercises HTTP/1.1
 Authorization: Bearer {{$dotenv %token}}
 Content-Type: application/json
 
 {
     "IsSet" : false,
     "Order" : 4,
+    "Repeats" : 4,
+    "Calories" : 7,
+    "Sets" : 8,
+    "Duration" : 9,
+    "Weight" : 4,
     "Name": "pushup",
     "About": "About Ex"
 }
 
 ###
-PUT {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises/5e237ec7-cd69-430c-b4d4-ed0b7eaf932b HTTP/1.1
+
+POST {{$dotenv %url}}/api/workout/3d9471dd-f7d5-4b5f-0736-08d9115f1f17/exercises/range HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+
+[
+    {
+    "id":"0",
+    "IsSet" : false,
+    "Order" : 4,
+    "Repeats" : 4,
+    "Calories" : 7,
+    "Sets" : 8,
+    "Duration" : 9,
+    "Weight" : 4,
+    "Name": "pushup",
+    "About": "About Ex"
+    },
+    {
+    "IsSet" : false,
+    "Order" : 4,
+    "Repeats" : 4,
+    "Calories" : 7,
+    "Sets" : 8,
+    "Duration" : 9,
+    "Weight" : 4,
+    "Name": "pushup",
+    "About": "About Ex"
+    }
+]
+
+###
+PUT {{$dotenv %url}}/api/workout/3d9471dd-f7d5-4b5f-0736-08d9115f1f17/exercises/946a2f3b-7ba5-49a1-9b32-6208f17b1dad HTTP/1.1
 Authorization: Bearer {{$dotenv %token}}
 Content-Type: application/json
 
 {
     "IsSet" : false,
-    "Order" : 2,
+    "Order" : 0,
+    "Repeats" : 4,
+    "Calories" : 7,
+    "Sets" : 8,
+    "Duration" : 9,
+    "Weight" : 4,
     "Name": "pushup",
     "About": "About Ex"
 }
 
 
 ###
-DELETE {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises/{exerciseId} HTTP/1.1
+DELETE {{$dotenv %url}}/api/workout/bc4421e9-13eb-462d-6034-08d904d2ccbe/exercises/6166aab2-98dc-4a40-9ea2-d96904ac6ce6 HTTP/1.1
 Authorization: Bearer {{$dotenv %token}}
 Content-Type: application/json
 

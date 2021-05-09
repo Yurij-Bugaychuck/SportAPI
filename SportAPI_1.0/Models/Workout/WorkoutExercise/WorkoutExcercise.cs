@@ -18,6 +18,13 @@ namespace SportAPI.Models
 
         public uint Order { get; set; } = 0;
 
+        public int Repeats { get; set; } = 0;
+        public int Calories { get; set; } = 0;
+
+        public int Sets { get; set; } = 0;
+
+        public int Duration { get; set; } = 0;
+        public int? Weight { get; set; }
 
         public string Name { get; set; }
         public string About { get; set; }
@@ -28,7 +35,7 @@ namespace SportAPI.Models
 
 
         public List<WorkoutExcerciseCategory> Categories { get; set; }
-        public List<WorkoutExcerciseOption> Options { get; set; }
+        public List<WorkoutExcerciseOption> Options { get; set; } = new List<WorkoutExcerciseOption>();
 
 
 

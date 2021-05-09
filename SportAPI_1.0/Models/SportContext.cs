@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
-namespace SportAPI.Models
+using SportAPI.Models;
+namespace SportAPI
 {
     public class SportContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<UserStat> UsersStats { get; set; }
         public DbSet<UserOption> UsersOptions { get; set; }
-        public DbSet<StatsCategories> StatsCategories { get; set; }
+        public DbSet<StatsCategory> StatsCategories { get; set; }
         public DbSet<Workout> Workouts { get; set; }
         public DbSet<WorkoutOption> WorkoutsOptions { get; set; }
         public DbSet<WorkoutExcercise> WorkoutsExcercises { get; set; }
@@ -26,8 +26,11 @@ namespace SportAPI.Models
                 .IsUnique(); 
             modelBuilder.Entity<User>()
                 .HasIndex(b => b.Username)
-                .IsUnique(); 
-           
+                .IsUnique();
+
+            modelBuilder.Entity<WorkoutExcercise>().HasMany<WorkoutExcerciseOption>();
+
+
         }
 
      
@@ -37,8 +40,10 @@ namespace SportAPI.Models
         {
             //Database.EnsureDeleted();
             Database.EnsureCreated();
-
-            this.ChangeTracker.LazyLoadingEnabled = false;
+            
+            //this.ChangeTracker.LazyLoadingEnabled = false;
+            
+            
         }
     }
 }

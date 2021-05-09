@@ -58,7 +58,7 @@ namespace SportAPI.Controllers
         }
 
         [HttpPost("/register")]
-        public async Task<IActionResult> Create([Bind("FirstName,LastName,Phone")] User user)
+        public async Task<IActionResult> Create([FromBody] [Bind("Username,Email,FirstName,LastName,Phone")] User user)
         {
             try
             {

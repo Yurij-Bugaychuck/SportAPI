@@ -28,7 +28,7 @@ Authorization: Bearer {{$dotenv %token}}
 Content-Type: application/json
 
 {
-  "firstName": "Test4",
+  "firstName": "qweqweqdqwe",
   "lastName": "32",
   "phone": "+38000000004"
 }

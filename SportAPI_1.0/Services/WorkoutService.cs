@@ -25,7 +25,8 @@ namespace SportAPI
         }
 
         public bool HaveAccessWorkout(User user, Workout workout) {
-            if (user.Workouts.Contains(workout)) return true;
+           
+            if (workout.UserId == user.UserId) return true;
             return false;
         }
 
@@ -176,7 +177,7 @@ namespace SportAPI
             if (!HaveAccessWorkout(user, workout)) throw new AuthenticationException();
 
             var excercises = _context.WorkoutsExcercises.Where(o => o.WorkoutId == workout.WorkoutId)
-                .OrderBy(o => o.Order).AsEnumerable().ToList();
+                .OrderBy(o => o.Order).Include(o => o.Options).ToList();
 
             return excercises;
 
@@ -209,6 +210,22 @@ namespace SportAPI
                  _context.SaveChanges();
 
                 return exercise;
+            }
+            else
+            {
+                throw new AuthenticationException();
+            }
+        }
+
+        public List<WorkoutExcercise> AddRangeWorkoutExercise(User user, List<WorkoutExcercise> exercises)
+        {
+            var workout = _context.Workouts.FirstOrDefault(o => o.WorkoutId == exercises[0].WorkoutId);
+            if (HaveAccessWorkout(user, workout))
+            {
+                _context.WorkoutsExcercises.AddRange(exercises);
+                _context.SaveChanges();
+
+                return _context.WorkoutsExcercises.Where(o => o.WorkoutId == workout.WorkoutId).ToList();
             }
             else
             {
@@ -258,18 +275,20 @@ namespace SportAPI
             }
         }
 
-        public async Task<List<WorkoutExcerciseOption>> GetWorkoutExerciseOptions(User user, Guid workoutId, Guid exerciseId)
+        public List<WorkoutExcerciseOption> GetWorkoutExerciseOptions(User user, Guid workoutId, Guid exerciseId)
         {
-            var exercise = await _context.WorkoutsExcercises.Include(o=>o.Options).FirstOrDefaultAsync(o=> o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            //return _context.WorkoutsExcercisesOptions.Include(o => o.WorkoutExcercise).ToList();
+            var exercise = _context.WorkoutsExcercisesOptions.Where(o=> o.WorkoutExcerciseId == exerciseId);
             if (HaveAccessWorkout(user, workoutId))
             {
                 if (exercise != null)
                 {
-                    return exercise.Options.OrderBy(o => o.CreatedAt).ToList();
+
+                    return exercise.OrderBy(o => o.CreatedAt).Include(o => o.WorkoutExcercise).ToList();
                 }
                 else
                 {
-                    throw new AuthenticationException();
+                    throw new KeyNotFoundException();
                 }
             }
             else
@@ -278,14 +297,14 @@ namespace SportAPI
             }
         }
 
-        public async Task<List<WorkoutExcerciseOption>> GetWorkoutExerciseOptionByKey(
+        public List<WorkoutExcerciseOption> GetWorkoutExerciseOptionByKey(
             User user, 
             Guid workoutId, 
             Guid exerciseId, 
             string key
             )
         {
-            var exercise = await _context.WorkoutsExcercises.Include(o => o.Options).FirstOrDefaultAsync(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            var exercise = _context.WorkoutsExcercises.Include(o => o.Options).FirstOrDefault(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
             if (HaveAccessWorkout(user, workoutId))
             {
                 if (exercise != null)
@@ -303,20 +322,22 @@ namespace SportAPI
             }
         }
 
-        public async Task<WorkoutExcerciseOption> AddWorkoutExerciseOption(
+        public WorkoutExcerciseOption AddWorkoutExerciseOption(
             User user,
             Guid workoutId, 
             Guid exerciseId, 
             WorkoutExcerciseOption option
             )
         {
-            var exercise = await _context.WorkoutsExcercises.Include(o => o.Options).FirstOrDefaultAsync(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            var exercise = _context.WorkoutsExcercises.FirstOrDefault(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
             if (HaveAccessWorkout(user, workoutId))
             {
                 if (exercise != null)
                 {
+                    Console.WriteLine(exercise);
+                    option.WorkoutExcercise = exercise;
                     _context.WorkoutsExcercisesOptions.Add(option);
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
 
                     return option;
                 }
@@ -331,22 +352,28 @@ namespace SportAPI
             }
         }
 
-        public async Task<WorkoutExcerciseOption> UpdateWorkoutExerciseOption(
+        public WorkoutExcerciseOption UpdateWorkoutExerciseOption(
             User user,
             Guid workoutId,
             Guid exerciseId,
             WorkoutExcerciseOption option
             )
         {
-            var exercise = await _context.WorkoutsExcercises.Include(o => o.Options).FirstOrDefaultAsync(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            var exercise = _context.WorkoutsExcercises.Include(o => o.Options).FirstOrDefault(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
             if (HaveAccessWorkout(user, workoutId))
             {
                 if (exercise != null)
                 {
-                    _context.WorkoutsExcercisesOptions.Update(option);
-                    await _context.SaveChangesAsync();
+                    var opt = _context.WorkoutsExcercisesOptions
+                        .FirstOrDefault(o => o.WorkoutExcerciseId == option.WorkoutExcerciseId && o.WorkoutExcerciseOptionId == option.WorkoutExcerciseOptionId);
 
-                    return option;
+                    opt.Key = option.Key;
+                    opt.Value = option.Value;
+                    _context.WorkoutsExcercisesOptions.Update(opt);
+
+                    _context.SaveChanges();
+
+                    return opt;
                 }
                 else
                 {
@@ -359,27 +386,27 @@ namespace SportAPI
             }
         }
 
-        public async Task<WorkoutExcerciseOption> RemoveWorkoutExerciseOption(
+        public WorkoutExcerciseOption RemoveWorkoutExerciseOption(
             User user,
             Guid workoutId,
             Guid exerciseId,
-            WorkoutExcerciseOption option
+            Guid optionId
             )
         {
-            var exercise = await _context.WorkoutsExcercises.Include(o => o.Options).FirstOrDefaultAsync(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            var exercise = _context.WorkoutsExcercises.FirstOrDefault(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
             if (HaveAccessWorkout(user, workoutId))
             {
                 if (exercise != null)
                 {
-                    var _option = exercise.Options.FirstOrDefault(o => o.WorkoutExcerciseOptionId == option.WorkoutExcerciseOptionId);
+                    var _option = _context.WorkoutsExcercisesOptions.FirstOrDefault(o => o.WorkoutExcerciseOptionId == optionId && exercise.WorkoutExcerciseId == o.WorkoutExcerciseId);
 
                     if (_option != null)
                     {
                         _context.WorkoutsExcercisesOptions.Remove(_option);
 
-                        await _context.SaveChangesAsync();
+                        _context.SaveChanges();
 
-                        return option;
+                        return _option;
                     }
                     
                 }

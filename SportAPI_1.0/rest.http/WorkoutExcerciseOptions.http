@@ -1,0 +1,35 @@
+
+GET {{$dotenv %url}}/api/workout/94af622a-297f-4e31-b7c1-08d911456c15/exercises/cefc516b-1791-4fee-9422-d15a18a4bee8/options HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+
+###
+GET {{$dotenv %url}}/api/workout/94af622a-297f-4e31-b7c1-08d911456c15/exercises/{id} HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+
+###
+POST {{$dotenv %url}}/api/workout/94af622a-297f-4e31-b7c1-08d911456c15/exercises/cefc516b-1791-4fee-9422-d15a18a4bee8/options HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "key" : "test334",
+    "value" : 4
+}
+
+###
+PUT {{$dotenv %url}}/api/workout/94af622a-297f-4e31-b7c1-08d911456c15/exercises/cefc516b-1791-4fee-9422-d15a18a4bee8/options/8e2026ab-f5a0-45db-1bbd-08d91061b6eb HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+
+{
+    "key": "test",
+    "value": 24
+}
+
+
+###
+DELETE {{$dotenv %url}}/api/workout/94af622a-297f-4e31-b7c1-08d911456c15/exercises/cefc516b-1791-4fee-9422-d15a18a4bee8/options/5d95398e-5cea-440b-85c4-08d910c75aca HTTP/1.1
+Authorization: Bearer {{$dotenv %token}}
+Content-Type: application/json
+

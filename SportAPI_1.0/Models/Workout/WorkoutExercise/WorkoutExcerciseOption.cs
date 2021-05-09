@@ -10,10 +10,12 @@ namespace SportAPI.Models
     public class WorkoutExcerciseOption
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid WorkoutExcerciseOptionId { get; set; }
-        public Guid WorkoutExcerciseId { get; set; }
+        public Guid? WorkoutExcerciseId { get; set; }
+
         [ForeignKey("WorkoutExcerciseId")]
-        public WorkoutExcercise Excercise { get; set; }
+        public WorkoutExcercise WorkoutExcercise { get; set; }
 
 
         public string Key { get; set; }

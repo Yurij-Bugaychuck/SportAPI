@@ -17,12 +17,12 @@ namespace SportAPI.Services
             _context = dbContext;
         }
 
-        public void AddStatsCategory(StatsCategories cat) {
+        public void AddStatsCategory(StatsCategory cat) {
             _context.StatsCategories.Add(cat);
 
             _context.SaveChangesAsync();
         }
-        public void UpdateStatsCategory(StatsCategories cat)
+        public void UpdateStatsCategory(StatsCategory cat)
         {
             _context.StatsCategories.Update(cat);
 
@@ -34,13 +34,13 @@ namespace SportAPI.Services
             _context.StatsCategories.Remove(cat);
             _context.SaveChanges();
         }
-        public List<StatsCategories> GetStatsCategories()
+        public List<StatsCategory> GetStatsCategories()
         {
             var categories = _context.StatsCategories.ToList();
 
             return categories;
         }
-        public StatsCategories GetStatsCategoryById(Guid catId)
+        public StatsCategory GetStatsCategoryById(Guid catId)
         {
             var cat = _context.StatsCategories.FirstOrDefault(o => o.StatsCategoryId == catId);
 

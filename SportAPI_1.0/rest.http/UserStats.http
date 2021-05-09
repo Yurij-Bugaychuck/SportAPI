@@ -18,7 +18,7 @@ Authorization: Bearer {{$dotenv %token}}
 Content-Type: application/json
 
 {
-    "key" : "tewst6",
+    "key" : "test6",
     "value" : 24,
     "StatsCategoryId": "00fe3f17-4bff-427e-83b1-a76d28018c75"
 }

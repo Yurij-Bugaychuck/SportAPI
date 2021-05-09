@@ -5,19 +5,16 @@ Content-Type: application/json
   "Email": "test4@gm.ua"
 }
 
-
 ###
-
-### Only in dev
 POST {{$dotenv %url}}/register HTTP/1.1
 Content-Type: application/json
 
 {
-  "username": "test_2",
-  "email": "test6@gm.ua",
-  "firstName": "Test2",
-  "lastName": "3",
-  "phone": "+38000000002"
+  "Username": "test_2",
+  "Email": "test4@gm.ua",
+  "FirstName": "Test2",
+  "LastName": "3",
+  "Phone": "+38000000002"
 }
 
 ###

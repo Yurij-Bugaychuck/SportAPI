@@ -7,10 +7,10 @@ namespace SportAPI.Interfaces
 {
     public interface ICategoriesService
     {
-        void AddStatsCategory(StatsCategories cat);
-        void UpdateStatsCategory(StatsCategories cat);
+        void AddStatsCategory(StatsCategory cat);
+        void UpdateStatsCategory(StatsCategory cat);
         void RemoveStatsCategory(Guid cat);
-        List<StatsCategories> GetStatsCategories();
-        StatsCategories GetStatsCategoryById(Guid CatId);
+        List<StatsCategory> GetStatsCategories();
+        StatsCategory GetStatsCategoryById(Guid CatId);
     }
 }

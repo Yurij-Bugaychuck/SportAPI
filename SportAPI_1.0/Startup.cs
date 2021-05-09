@@ -14,6 +14,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using SportAPI.Services;
 using SportAPI.Middlewares;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
+
 namespace SportAPI
 {
     public class Startup
@@ -31,7 +34,9 @@ namespace SportAPI
         {
 
             string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<SportContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<SportContext>(options => options
+            .UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
+            .UseSqlServer(connection));
 
             //var connectionString = new SqlConnectionStringBuilder()
             //{
@@ -76,10 +81,13 @@ namespace SportAPI
 
            
             services.AddCustomServices();
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(o =>
+            {
+                o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            });
 
-           
-            
+
+
 
 
 

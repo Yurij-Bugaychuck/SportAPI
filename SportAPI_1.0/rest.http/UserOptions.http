@@ -13,7 +13,7 @@ Authorization: Bearer {{$dotenv %token}}
 Content-Type: application/json
 
 {
-    "key" : "test2",
+    "key" : "tesdasdasdt23",
     "value" : "testval3"
 }
 

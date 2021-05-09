@@ -38,7 +38,7 @@ namespace SportAPI.Controllers
         
         [HttpPost]
         
-        public async Task<IActionResult> Create([Bind("Name")] StatsCategories statsCategories)
+        public async Task<IActionResult> Create([Bind("Name")] StatsCategory statsCategories)
         {
             if (ModelState.IsValid)
             {
@@ -48,7 +48,7 @@ namespace SportAPI.Controllers
         }       
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Name")] StatsCategories statsCategories)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Name")] StatsCategory statsCategories)
         {
 
             var CatDb = _categoriesService.GetStatsCategoryById(id);

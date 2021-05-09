@@ -10,7 +10,7 @@ using SportAPI.Interfaces;
 
 namespace SportAPI.Controllers
 {
-    [Route("api/workout/{workoutId}/exercise/{exerciseId}/options")]
+    [Route("api/workout/{workoutId}/exercises/{exerciseId}/options")]
     [ApiController]
     public class WorkoutExcerciseOptionController : ControllerBase
     {
@@ -46,33 +46,34 @@ namespace SportAPI.Controllers
 
         // POST api/<WorkoutExcerciseOptionController>
         [HttpPost]
-        public async Task<IActionResult> Post(Guid workoutId, Guid exerciseId, [FromBody] WorkoutExcerciseOption option)
+        public async Task<IActionResult> Post(Guid workoutId, Guid exerciseId, [Bind("key,value")] WorkoutExcerciseOption option)
         {
             User user = _userService.GetByEmail(User.Identity.Name);
-            option.WorkoutExcerciseId = exerciseId;
+            
             var res = _workoutService.AddWorkoutExerciseOption(user, workoutId, exerciseId, option);
 
             return Ok("Added");
         }
 
         // PUT api/<WorkoutExcerciseOptionController>/5
-        [HttpPut]
-        public async Task<IActionResult> Put(Guid workoutId, Guid exerciseId, [FromBody] WorkoutExcerciseOption option)
+        [HttpPut("{optionId}")]
+        public async Task<IActionResult> Put(Guid workoutId, Guid exerciseId, Guid optionId, [Bind("key,value")] WorkoutExcerciseOption option)
         {
             User user = _userService.GetByEmail(User.Identity.Name);
             option.WorkoutExcerciseId = exerciseId;
+            option.WorkoutExcerciseOptionId = optionId;
             var res = _workoutService.UpdateWorkoutExerciseOption(user, workoutId, exerciseId, option);
 
             return Ok("Update");
         }
 
         // DELETE api/<WorkoutExcerciseOptionController>/5
-        [HttpDelete]
-        public async Task<IActionResult> Delete(Guid workoutId, Guid exerciseId, [FromBody] WorkoutExcerciseOption option)
+        [HttpDelete("{optionId}")]
+        public async Task<IActionResult> Delete(Guid workoutId, Guid exerciseId, Guid optionId)
         {
             User user = _userService.GetByEmail(User.Identity.Name);
-            option.WorkoutExcerciseId = exerciseId;
-            var res = _workoutService.RemoveWorkoutExerciseOption(user, workoutId, exerciseId, option);
+            
+            var res = _workoutService.RemoveWorkoutExerciseOption(user, workoutId, exerciseId, optionId);
 
             return Ok("Deleted");
         }
