@@ -151,7 +151,7 @@ namespace SportAPI.Services
         {
             var userStats = _context.UsersStats
                 .Where(o => o.UserId == user.UserId)
-                .OrderByDescending(o => o.CreatedAt)
+                .OrderBy(o => o.CreatedAt)
                 .AsEnumerable()
                 .GroupBy(o => o.Key) 
                 .ToDictionary(o => o.Key);
@@ -169,7 +169,7 @@ namespace SportAPI.Services
         {
             var userStats = _context.UsersStats
                 .Where(o => o.UserId == user.UserId && o.Key == key)
-                .OrderByDescending(o => o.CreatedAt)
+                .OrderBy(o => o.CreatedAt)
                 .ToList();
             
             return userStats;

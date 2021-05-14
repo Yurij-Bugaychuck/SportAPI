@@ -58,9 +58,10 @@ namespace SportAPI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddStatsByName([Bind("Key,Value,StatsCategoryId")] UserStat stat)
+        public async Task<IActionResult> AddStatsByName([Bind("Key,Value,CreatedAt,StatsCategoryId")] UserStat stat)
         {
             User user = _userService.GetByEmail(User.Identity.Name);
+            if (stat.Key == "" || stat.Key.Length < 1) throw new ArgumentException();
 
             var stats = await _userService.AddUserStat(user, stat);
 

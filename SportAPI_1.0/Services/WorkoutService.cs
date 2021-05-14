@@ -249,7 +249,19 @@ namespace SportAPI
 
             if (exercise.About != null)
                 excerciseDb.About = exercise.About;
+            if (exercise.Order != null)
+                excerciseDb.Order = exercise.Order;
+            if (exercise.Repeats != null)
+                excerciseDb.Repeats = exercise.Repeats;
+            if (exercise.Calories != null)
+                excerciseDb.Calories = exercise.Calories;
+            if (exercise.Sets != null)
+                excerciseDb.Sets = exercise.Sets;
+            if (exercise.Duration != null)
+                excerciseDb.Duration = exercise.Duration;
 
+            if (exercise.Weight != null)
+                excerciseDb.Weight = exercise.Weight;
             excerciseDb.Order = exercise.Order;
 
             _context.WorkoutsExcercises.Update(excerciseDb);
