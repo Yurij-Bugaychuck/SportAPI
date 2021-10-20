@@ -76,15 +76,9 @@ namespace SportAPI.Controllers
         [HttpDelete("{workoutId}")]
         public async Task<IActionResult> Delete(Guid workoutId)
         {
-
-            
-
             User user = _userService.GetByEmail(User.Identity.Name);
 
-           
              _workoutService.DeleteWorkout(user, workoutId);
-            
-
 
             return Ok(workoutId);
         }

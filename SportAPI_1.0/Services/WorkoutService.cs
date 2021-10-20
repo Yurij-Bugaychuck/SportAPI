@@ -64,9 +64,7 @@ namespace SportAPI
 
         public async Task<Workout> UpdateWorkout(User user, Workout workout)
         {
-
             workout.UserId = user.UserId;
-            
 
             var workoutdb = _context.Workouts
                 .FirstOrDefault(o => o.WorkoutId == workout.WorkoutId && user.UserId == o.UserId);
@@ -77,8 +75,8 @@ namespace SportAPI
                 workoutdb.Name = workout.Name;
             if (workout.About != null)
                 workoutdb.About = workout.About;
-            if (workout.IsPublished != null)
-                workoutdb.IsPublished = workout.IsPublished;
+            
+            workoutdb.IsPublished = workout.IsPublished;
 
 
             _context.Workouts.Update(workoutdb);
@@ -132,7 +130,6 @@ namespace SportAPI
             if (workoutDB == null) throw new KeyNotFoundException();
             if (workoutDB.UserId != user.UserId) throw new AuthenticationException();
 
-
             option.WorkoutId = (Guid) workoutId;
 
             _context.WorkoutsOptions.Add(option);
@@ -146,7 +143,6 @@ namespace SportAPI
 
             if (workoutDB == null) throw new KeyNotFoundException();
             if (workoutDB.UserId != user.UserId) throw new AuthenticationException();
-
 
             option.WorkoutId = (Guid)workoutId;
 
