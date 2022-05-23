@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SportAPI.Models
+namespace SportAPI.Models.User
 {
-   
     public class StatsCategory
     {
         [Key]
@@ -20,8 +17,5 @@ namespace SportAPI.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public List<UserStat> UsersStatsInCategory { get; set; }
-
-
-
     }
 }

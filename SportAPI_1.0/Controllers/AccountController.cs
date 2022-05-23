@@ -6,46 +6,48 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using SportAPI.Models;
-using System.Security.Claims;
 using System.Threading.Tasks;
+using SportAPI.Models.User;
 
 namespace SportAPI.Controllers
 {
     [ApiController]
-
-
     public class Credentials
     {
         public string Email { get; set; }
     }
+
     public class AccountController : ControllerBase
     {
         private readonly SportContext _context;
 
-
         public AccountController(SportContext context)
         {
-            _context = context;
+            this._context = context;
         }
 
         [HttpPost("/token")]
-        public async Task<IActionResult> Token([FromBody] [Bind("Email")] Credentials credentials)
+        public Task<IActionResult> Token([FromBody] [Bind("Email")] Credentials credentials)
         {
-            var identity = GetIdentity(credentials.Email);
+            var identity = this.GetIdentity(credentials.Email);
+
             if (identity == null)
             {
-                return BadRequest(new { errorText = "Invalid username or password." });
+                return Task.FromResult<IActionResult>(this.BadRequest(new {errorText = "Invalid username or password."}));
             }
 
             var now = DateTime.UtcNow;
+
             // создаем JWT-токен
             var jwt = new JwtSecurityToken(
-                    issuer: AuthOptions.ISSUER,
-                    audience: AuthOptions.AUDIENCE,
-                    notBefore: now,
-                    claims: identity.Claims,
-                    expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                issuer: AuthOptions.ISSUER,
+                audience: AuthOptions.AUDIENCE,
+                notBefore: now,
+                claims: identity.Claims,
+                expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                signingCredentials: new SigningCredentials(
+                    AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
             var response = new
@@ -54,7 +56,7 @@ namespace SportAPI.Controllers
                 user_id = identity.Name
             };
 
-            return Ok(response);
+            return Task.FromResult<IActionResult>(this.Ok(response));
         }
 
         [HttpPost("/register")]
@@ -62,20 +64,21 @@ namespace SportAPI.Controllers
         {
             try
             {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return Ok(user);
+                this._context.Add(user);
+                await this._context.SaveChangesAsync();
+
+                return this.Ok(user);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                return Conflict(new { errorText = e.Message });
+                return this.Conflict(new {errorText = e.Message});
             }
-           
         }
 
         private ClaimsIdentity GetIdentity(string email)
         {
-            User person = _context.Users.FirstOrDefault(x => x.Email == email);
+            User person = this._context.Users.FirstOrDefault(x => x.Email == email);
+
             if (person != null)
             {
                 var claims = new List<Claim>
@@ -83,9 +86,12 @@ namespace SportAPI.Controllers
                     new Claim(ClaimsIdentity.DefaultNameClaimType, person.Email),
                     new Claim(ClaimsIdentity.DefaultRoleClaimType, "user")
                 };
+
                 ClaimsIdentity claimsIdentity =
-                new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
-                    ClaimsIdentity.DefaultRoleClaimType);
+                    new ClaimsIdentity(
+                        claims, "Token", ClaimsIdentity.DefaultNameClaimType,
+                        ClaimsIdentity.DefaultRoleClaimType);
+
                 return claimsIdentity;
             }
 

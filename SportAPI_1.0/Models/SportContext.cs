@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SportAPI.Models;
-namespace SportAPI
+using Microsoft.Extensions.Configuration;
+using SportAPI.Models.User;
+
+namespace SportAPI.Models
 {
-    public class SportContext : DbContext
+    public sealed class SportContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
+        public DbSet<User.User> Users { get; set; }
         public DbSet<UserStat> UsersStats { get; set; }
         public DbSet<UserOption> UsersOptions { get; set; }
         public DbSet<StatsCategory> StatsCategories { get; set; }
@@ -14,36 +16,43 @@ namespace SportAPI
         public DbSet<WorkoutExcerciseCategory> WorkoutsExcercisesCategory { get; set; }
         public DbSet<WorkoutExcerciseCategories> WorkoutsExcercisesCategories { get; set; }
         public DbSet<WorkoutExcerciseOption> WorkoutsExcercisesOptions { get; set; }
+        
+        public IConfiguration Configuration { get; }
+        
+        public SportContext(DbContextOptions<SportContext> options, IConfiguration configuration) 
+            : base(options)
+        {
+            //this.Database.EnsureDeleted();
+            this.Database.EnsureCreated();
+            
+            //this.ChangeTracker.LazyLoadingEnabled = false;
+
+            this.Configuration = configuration;
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<User.User>()
                 .HasIndex(b => b.Email)
                 .IsUnique();
             
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<User.User>()
                 .HasIndex(b => b.Phone)
                 .IsUnique(); 
-            modelBuilder.Entity<User>()
+           
+            modelBuilder.Entity<User.User>()
                 .HasIndex(b => b.Username)
                 .IsUnique();
 
             modelBuilder.Entity<WorkoutExcercise>().HasMany<WorkoutExcerciseOption>();
-
-
         }
 
-     
-
-        public SportContext(DbContextOptions<SportContext> options)
-            : base(options)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //Database.EnsureDeleted();
-            Database.EnsureCreated();
-            
-            //this.ChangeTracker.LazyLoadingEnabled = false;
-            
-            
+            base.OnConfiguring(optionsBuilder);
+
+            optionsBuilder
+                .UseNpgsql("Host=localhost;Port=5432;Database=sportdb;Username=postgres;Password=postgres");
         }
     }
 }

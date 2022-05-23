@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using SportAPI.Models;
 using SportAPI.Interfaces;
+using SportAPI.Models.User;
 
 namespace SportAPI.Controllers
 {
@@ -19,56 +16,55 @@ namespace SportAPI.Controllers
 
         public StatsCategoriesController(SportContext context, ICategoriesService categoriesService)
         {
-            _context = context;
-            _categoriesService = categoriesService;
+            this._context = context;
+            this._categoriesService = categoriesService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return Ok(_categoriesService.GetStatsCategories());
+            return this.Ok(this._categoriesService.GetStatsCategories());
         }
 
         // GET: StatsCategories/Details/5
         [HttpGet("{categoryId}")]
         public async Task<IActionResult> Details(Guid categoryId)
         {
-            return Ok(_categoriesService.GetStatsCategoryById(categoryId));
+            return this.Ok(this._categoriesService.GetStatsCategoryById(categoryId));
         }
-        
+
         [HttpPost]
-        
         public async Task<IActionResult> Create([Bind("Name")] StatsCategory statsCategories)
         {
-            if (ModelState.IsValid)
+            if (this.ModelState.IsValid)
             {
-                _categoriesService.AddStatsCategory(statsCategories);
+                this._categoriesService.AddStatsCategory(statsCategories);
             }
-            return Ok(statsCategories);
-        }       
+
+            return this.Ok(statsCategories);
+        }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(Guid id, [Bind("Name")] StatsCategory statsCategories)
         {
+            var CatDb = this._categoriesService.GetStatsCategoryById(id);
 
-            var CatDb = _categoriesService.GetStatsCategoryById(id);
-
-            if (CatDb == null) return NotFound();
+            if (CatDb == null)
+                return this.NotFound();
 
             CatDb.Name = statsCategories.Name;
 
-            _categoriesService.UpdateStatsCategory(CatDb);
+            this._categoriesService.UpdateStatsCategory(CatDb);
 
-            return Ok(CatDb);
+            return this.Ok(CatDb);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            this._categoriesService.RemoveStatsCategory(id);
 
-            _categoriesService.RemoveStatsCategory(id);
-
-            return Ok("deleted");
+            return this.Ok("deleted");
         }
     }
 }

@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using SportAPI.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using Microsoft.AspNetCore.Hosting;
-using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using PagedList;
 using SportAPI.Interfaces;
+using SportAPI.Models.User;
 
 namespace SportAPI.Controllers
 {
@@ -23,66 +19,101 @@ namespace SportAPI.Controllers
         private readonly SportContext _context;
         private readonly IWorkoutService _workoutService;
         private readonly IUserService _userService;
+
         public WorkoutController(SportContext context, IUserService userService, IWorkoutService workoutService)
         {
-            _context = context;
-            _workoutService = workoutService;
-            _userService = userService;
-
+            this._context = context;
+            this._workoutService = workoutService;
+            this._userService = userService;
         }
 
         // GET: User Workouts
-        
+
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            
-            var workouts = await _workoutService.GetWorkouts(user);
-            return Ok(workouts);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
+
+            var workouts = await this._workoutService
+                .GetWorkouts()
+                .Where(workout => workout.UserId == user.UserId)
+                .ToListAsync();
+
+            return this.Ok(workouts);
         }
-        
+
+        [Authorize]
         [HttpGet("{workoutID}")]
         public async Task<IActionResult> GetWorkout(Guid workoutID)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            var workout = await _workoutService.GetWorkoutById(user, workoutID);
-            return Ok(workout);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
+            var workout = await this._workoutService.GetWorkoutById(user, workoutID);
+
+            return this.Ok(workout);
         }
-        
+
+        [Authorize]
+        [HttpGet("global")]
+        public IActionResult GetWorkoutPublishedList(
+            [FromQuery] int limit = 30,
+            [FromQuery] int page = 1,
+            [FromQuery] string search = null)
+        {
+            search = search?.ToLower();
+
+            IQueryable<Workout> query = this._workoutService
+                .GetWorkouts()
+                .Where(workout => workout.IsPublished);
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(
+                    workout =>
+                        workout.Name.ToLower().Contains(search) ||
+                        workout.About.ToLower().Contains(search));
+            }
+
+            List<Workout> workoutList = query
+                .OrderByDescending(workout => workout.CreatedAt)
+                .ToPagedList(
+                    pageNumber: page,
+                    pageSize: limit)
+                .ToList();
+
+            return this.Ok(workoutList);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Index([Bind("Name,About,IsPublished")] Workout workout)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
 
-            var res = await _workoutService.AddWorkout(user, workout);
-            return Ok(res);
-        }   
+            var res = await this._workoutService.AddWorkout(user, workout);
+
+            return this.Ok(res);
+        }
 
         //PUT: Edit User
         [HttpPut]
-       
         public async Task<IActionResult> Edit([Bind("WorkoutId,Name,About,IsPublished")] Workout workout)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
 
-            var res = await _workoutService.UpdateWorkout(user, workout);
+            var res = await this._workoutService.UpdateWorkout(user, workout);
 
-            return Ok(res);
+            return this.Ok(res);
         }
 
         // HttpDelete: Delete Workout
         [HttpDelete("{workoutId}")]
         public async Task<IActionResult> Delete(Guid workoutId)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
 
-             _workoutService.DeleteWorkout(user, workoutId);
+            this._workoutService.DeleteWorkout(user, workoutId);
 
-            return Ok(workoutId);
+            return this.Ok(workoutId);
         }
-
     }
-
 }

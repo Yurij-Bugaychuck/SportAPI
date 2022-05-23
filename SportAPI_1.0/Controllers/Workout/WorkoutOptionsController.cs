@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using SportAPI.Models;
 using SportAPI.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using SportAPI.Models.User;
+
 namespace SportAPI.Controllers
 {
     [Route("api/workout/{workoutId}/option")]
@@ -21,60 +19,59 @@ namespace SportAPI.Controllers
 
         public WorkoutOptionsController(SportContext context, IWorkoutService workoutService, IUserService userService)
         {
-            _context = context;
-            _workoutService = workoutService;
-            _userService = userService;
+            this._context = context;
+            this._workoutService = workoutService;
+            this._userService = userService;
         }
 
- 
         [HttpGet]
         public async Task<IActionResult> Get(Guid workoutId)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            var res = await _workoutService.GetWorkoutOptions(user, workoutId);
-           
-            return Ok(res);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
+            var res = await this._workoutService.GetWorkoutOptions(user, workoutId);
+
+            return this.Ok(res);
         }
-        
 
         [HttpGet("{key}")]
         public async Task<IActionResult> getStatsByKey(Guid workoutId, string key)
         {
-            if (workoutId == null || key == null) return NotFound();
-            
-            User user = _userService.GetByEmail(User.Identity.Name);
+            if (workoutId == null || key == null)
+                return this.NotFound();
 
-            var workoutOptionsByKey = await _workoutService.GetWorkoutOptionByKey(user, workoutId, key);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
 
-            return Ok(workoutOptionsByKey);
+            var workoutOptionsByKey = await this._workoutService.GetWorkoutOptionByKey(user, workoutId, key);
+
+            return this.Ok(workoutOptionsByKey);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(Guid workoutId, [Bind("Key,Value")] WorkoutOption option )
+        public async Task<IActionResult> Add(Guid workoutId, [Bind("Key,Value")] WorkoutOption option)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            _workoutService.AddWorkoutOption(user, workoutId, option);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
+            this._workoutService.AddWorkoutOption(user, workoutId, option);
 
-            return Ok(option);
+            return this.Ok(option);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(Guid workoutId, [Bind("WorkoutOptionId,key,value,CreatedAt")] WorkoutOption option)
+        public async Task<IActionResult> Update(
+            Guid workoutId, [Bind("WorkoutOptionId,key,value,CreatedAt")] WorkoutOption option)
         {
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
+            this._workoutService.UpdateWorkoutOption(user, workoutId, option);
 
-            User user = _userService.GetByEmail(User.Identity.Name);
-            _workoutService.UpdateWorkoutOption(user, workoutId, option);
-
-            return Ok(option);
+            return this.Ok(option);
         }
 
         [HttpDelete("{optionId}")]
         public async Task<IActionResult> Update(Guid workoutId, Guid optionId)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            _workoutService.DeleteWorkoutOption(user, workoutId, optionId);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
+            this._workoutService.DeleteWorkoutOption(user, workoutId, optionId);
 
-            return Ok("deleted");
+            return this.Ok("deleted");
         }
     }
 }

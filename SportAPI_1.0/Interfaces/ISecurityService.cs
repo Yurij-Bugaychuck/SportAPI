@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using SportAPI.Models; 
+﻿using SportAPI.Models.User;
+
 namespace SportAPI.Interfaces
 {
     interface ISecurityService

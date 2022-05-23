@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using SportAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using System.Diagnostics;
 using SportAPI.Interfaces;
-
+using SportAPI.Models.User;
+using SportAPI.Services;
 
 namespace SportAPI.Controllers
 {
@@ -21,66 +16,67 @@ namespace SportAPI.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IWebHostEnvironment _appEnvironment;
-        private readonly ImageService _ImageService;
-        private readonly IUserService _userService;
+        private IWebHostEnvironment AppEnvironment { get; }
+        private ImageService ImageService { get; }
+        private IUserService UserService { get; }
+        
         public UserController(IWebHostEnvironment appEnvironment, ImageService imageService, IUserService userService)
         {
-            _appEnvironment = appEnvironment;
-            _ImageService = imageService;
-            _userService = userService;
+            this.AppEnvironment = appEnvironment;
+            this.ImageService = imageService;
+            this.UserService = userService;
         }
-
-        // GET: Users List
+        
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public Task<IActionResult> Get()
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            return Ok(user);
+            User user = this.UserService.GetByEmail(this.User.Identity?.Name);
+            
+            return Task.FromResult<IActionResult>(this.Ok(user));
         }
-
-
-        //POST: Write new Avatar Image to User Options
+        
         [Authorize]
         [HttpPost("avatar")]
-        public async Task<IActionResult> setAvatar(IFormFile image)
+        public async Task<IActionResult> SetAvatar(IFormFile image)
         {
-            if (image == null) return StatusCode(404);
-            image = image as IFormFile;
+            if (image == null) 
+                return this.StatusCode(404);
 
-            User user = _userService.GetByEmail(User.Identity.Name);
-            string FileExt = System.IO.Path.GetExtension(image.FileName).ToLower();
-            List<String> _extensions = new List<string> { ".png", ".jpg", ".jpeg" };
-            if (!_extensions.Contains(FileExt))
+            User user = this.UserService.GetByEmail(this.User.Identity.Name);
+            
+            string fileExt = System.IO.Path.GetExtension(image.FileName).ToLower();
+            
+            List<String> extensions = new List<string> {".png", ".jpg", ".jpeg"};
+            
+            if (!extensions.Contains(fileExt))
             {
-                return StatusCode(413, new { ErrorText = "Avatar supported only in png or jpg" });
+                return this.StatusCode(413, new {ErrorText = "Avatar supported only in png or jpg"});
             }
 
-            var imgOption = await _userService.NewAvatar(user, image);
-
-
-            return Ok(imgOption);
+            var imgOption = await this.UserService.NewAvatar(user, image);
+            
+            return this.Ok(imgOption);
         }
 
         [Authorize]
         [HttpGet("avatar")]
         public async Task<IActionResult> GetAvatar()
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            var avatar = _userService.GetAvatar(user);
+            User user = this.UserService.GetByEmail(this.User.Identity?.Name);
+            var avatar = this.UserService.GetAvatar(user);
 
-            return Ok(avatar);
+            return this.Ok(avatar);
         }
 
         [Authorize]
         [HttpGet("about")]
         public async Task<IActionResult> GetAbout()
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            var about = _userService.GetAbout(user);
+            User user = this.UserService.GetByEmail(this.User.Identity?.Name);
+            var about = this.UserService.GetAbout(user);
 
-            return Ok(about);
+            return this.Ok(about);
         }
 
         [Authorize]
@@ -88,50 +84,46 @@ namespace SportAPI.Controllers
         public async Task<IActionResult> PostAbout([FromBody] string aboutValue)
         {
             Debug.WriteLine("KEEEEEEEEEK----> " + aboutValue);
-            User user = _userService.GetByEmail(User.Identity.Name);
-            var about = _userService.AddAbout(user, aboutValue);
+            User user = this.UserService.GetByEmail(this.User.Identity?.Name);
+            var about = this.UserService.AddAbout(user, aboutValue);
 
-            return Ok(about);
+            return this.Ok(about);
         }
 
         [Authorize]
         [HttpGet("avatar/list")]
         public async Task<IActionResult> GetAvatarList()
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            var avatar = _userService.GetAvatars(user);
+            User user = this.UserService.GetByEmail(this.User.Identity.Name);
+            var avatar = this.UserService.GetAvatars(user);
 
-            return Ok(avatar);
+            return this.Ok(avatar);
         }
 
         [Authorize]
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetUserById( Guid userId)
+        public async Task<IActionResult> GetUserById(Guid userId)
         {
-
-            var user = _userService.GetById(userId);
+            var user = this.UserService.GetById(userId);
+            
             if (user == null){
-                return NotFound();
+                return this.NotFound();
             }
 
-            return Ok(user);
+            return this.Ok(user);
         }
-
-       
-
-
-        //PUT: Edit User
+        
+        [Authorize]
         [HttpPut]
-       
         public async Task<IActionResult> Edit([Bind("FirstName,LastName,Phone")] User user)
         {
-            User userDB = _userService.GetByEmail(User.Identity.Name);
+            User authUser = this.UserService.GetByEmail(this.User.Identity?.Name);
 
-            if (userDB == null) return NotFound();
+            if (authUser == null) return this.NotFound();
 
-            var res = await _userService.UpdateUser(userDB, user);
+            var res = await this.UserService.UpdateUser(authUser, user);
          
-            return Ok(res);
+            return this.Ok(res);
         } 
     }
 

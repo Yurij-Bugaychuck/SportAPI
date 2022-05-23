@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using SportAPI.Models;
 using SportAPI.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using SportAPI.Models.User;
 
 namespace SportAPI.Controllers
 {
@@ -21,8 +18,8 @@ namespace SportAPI.Controllers
 
         public UserOptionsController(SportContext context, IUserService userService)
         {
-            _context = context;
-            _userService = userService;
+            this._context = context;
+            this._userService = userService;
         }
 
 
@@ -32,20 +29,20 @@ namespace SportAPI.Controllers
         public async Task<IActionResult> Get()
         {
 
-            User user = _userService.GetByEmail(User.Identity.Name);
-            var userOptions = _userService.GetUserOptions(user);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
+            var userOptions = this._userService.GetUserOptions(user);
 
-            return Ok(userOptions);
+            return this.Ok(userOptions);
         }
         
 
         [HttpGet("{key}")]
         public async Task<IActionResult> GetOptionByKey(string key)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            var UsersStats = _userService.GetUserOptionByKey(user, key);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
+            var UsersStats = this._userService.GetUserOptionByKey(user, key);
 
-            return Ok(UsersStats);
+            return this.Ok(UsersStats);
         }
 
         [HttpPost]
@@ -53,11 +50,11 @@ namespace SportAPI.Controllers
         {
             //return Ok(option);
             if (option.Key == null) throw new ArgumentNullException();
-            User user = _userService.GetByEmail(User.Identity.Name);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
 
-            option = await _userService.AddUserOption(user, option);
+            option = await this._userService.AddUserOption(user, option);
 
-            return Ok(option);
+            return this.Ok(option);
         }
 
         [HttpPut("{optionId}")]
@@ -65,24 +62,24 @@ namespace SportAPI.Controllers
         {
            
             if (option.Key == null) throw new ArgumentNullException();
-            User user = _userService.GetByEmail(User.Identity.Name);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
 
             option.UserOptionsId = optionId;
 
 
-            option = await _userService.UpdateUserOption(user, option);
+            option = await this._userService.UpdateUserOption(user, option);
 
-            return Ok(option);
+            return this.Ok(option);
         }
 
         [HttpDelete("{optionId}")]
         public async Task<IActionResult> RemoveOption(Guid optionId)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
 
-            var option = await _userService.RemoveUserOption(user, optionId);
+            var option = await this._userService.RemoveUserOption(user, optionId);
 
-            return Ok("deleted");
+            return this.Ok("deleted");
         }
 
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SportAPI.Models;
@@ -17,25 +16,25 @@ namespace SportAPI.Controllers
 
         public WorkoutExcerciseCategoriesController(SportContext context)
         {
-            _context = context;
+            this._context = context;
         }
 
         // GET: api/WorkoutExcerciseCategories
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorkoutExcerciseCategories>>> GetWorkoutsExcercisesCategories()
         {
-            return await _context.WorkoutsExcercisesCategories.ToListAsync();
+            return await this._context.WorkoutsExcercisesCategories.ToListAsync();
         }
 
         // GET: api/WorkoutExcerciseCategories/5
         [HttpGet("{id}")]
         public async Task<ActionResult<WorkoutExcerciseCategories>> GetWorkoutExcerciseCategories(Guid id)
         {
-            var workoutExcerciseCategories = await _context.WorkoutsExcercisesCategories.FindAsync(id);
+            var workoutExcerciseCategories = await this._context.WorkoutsExcercisesCategories.FindAsync(id);
 
             if (workoutExcerciseCategories == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
             return workoutExcerciseCategories;
@@ -48,20 +47,20 @@ namespace SportAPI.Controllers
         {
             if (id != workoutExcerciseCategories.Workout_excercise_categories_id)
             {
-                return BadRequest();
+                return this.BadRequest();
             }
 
-            _context.Entry(workoutExcerciseCategories).State = EntityState.Modified;
+            this._context.Entry(workoutExcerciseCategories).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await this._context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!WorkoutExcerciseCategoriesExists(id))
+                if (!this.WorkoutExcerciseCategoriesExists(id))
                 {
-                    return NotFound();
+                    return this.NotFound();
                 }
                 else
                 {
@@ -69,7 +68,7 @@ namespace SportAPI.Controllers
                 }
             }
 
-            return NoContent();
+            return this.NoContent();
         }
 
         // POST: api/WorkoutExcerciseCategories
@@ -77,31 +76,31 @@ namespace SportAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<WorkoutExcerciseCategories>> PostWorkoutExcerciseCategories(WorkoutExcerciseCategories workoutExcerciseCategories)
         {
-            _context.WorkoutsExcercisesCategories.Add(workoutExcerciseCategories);
-            await _context.SaveChangesAsync();
+            this._context.WorkoutsExcercisesCategories.Add(workoutExcerciseCategories);
+            await this._context.SaveChangesAsync();
 
-            return CreatedAtAction("GetWorkoutExcerciseCategories", new { id = workoutExcerciseCategories.Workout_excercise_categories_id }, workoutExcerciseCategories);
+            return this.CreatedAtAction("GetWorkoutExcerciseCategories", new { id = workoutExcerciseCategories.Workout_excercise_categories_id }, workoutExcerciseCategories);
         }
 
         // DELETE: api/WorkoutExcerciseCategories/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWorkoutExcerciseCategories(Guid id)
         {
-            var workoutExcerciseCategories = await _context.WorkoutsExcercisesCategories.FindAsync(id);
+            var workoutExcerciseCategories = await this._context.WorkoutsExcercisesCategories.FindAsync(id);
             if (workoutExcerciseCategories == null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
-            _context.WorkoutsExcercisesCategories.Remove(workoutExcerciseCategories);
-            await _context.SaveChangesAsync();
+            this._context.WorkoutsExcercisesCategories.Remove(workoutExcerciseCategories);
+            await this._context.SaveChangesAsync();
 
-            return NoContent();
+            return this.NoContent();
         }
 
         private bool WorkoutExcerciseCategoriesExists(Guid id)
         {
-            return _context.WorkoutsExcercisesCategories.Any(e => e.Workout_excercise_categories_id == id);
+            return this._context.WorkoutsExcercisesCategories.Any(e => e.Workout_excercise_categories_id == id);
         }
     }
 }

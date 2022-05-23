@@ -1,42 +1,33 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SportAPI.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using SportAPI.Services;
 using SportAPI.Middlewares;
 using Newtonsoft.Json;
-using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using SportAPI.Models;
 
 namespace SportAPI
 {
     public class Startup
     {
+        readonly string MyAllowSpecificOrigins = "localhost_origin";
+        
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            this.Configuration = configuration;
         }
-
+        
         public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        
         public void ConfigureServices(IServiceCollection services)
         {
-
-            string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<SportContext>(options => options
-            .UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
-            .UseSqlServer(connection));
+            services.AddTransient(_ => this.Configuration);
+            
+            services.AddDbContext<SportContext>();
 
             //var connectionString = new SqlConnectionStringBuilder()
             //{
@@ -53,78 +44,99 @@ namespace SportAPI
             //string connection = Configuration.GetConnectionString("DefaultConnection");
             //services.AddDbContext<SportContext>(options => options.UseSqlServer(connectionString.ConnectionString));
 
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
+                .AddJwtBearer(
+                    options =>
                     {
                         options.RequireHttpsMetadata = false;
+
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
-                            // укзывает, будет ли валидироваться издатель при валидации токена
                             ValidateIssuer = true,
-                            // строка, представляющая издателя
                             ValidIssuer = AuthOptions.ISSUER,
-
-                            // будет ли валидироваться потребитель токена
                             ValidateAudience = true,
-                            // установка потребителя токена
                             ValidAudience = AuthOptions.AUDIENCE,
-                            // будет ли валидироваться время существования
                             ValidateLifetime = false,
-
-                            // установка ключа безопасности
                             IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                            // валидация ключа безопасности
-                            ValidateIssuerSigningKey = true,
-                        };  
+                            ValidateIssuerSigningKey = true
+                        };
                     });
-
-           
-            services.AddCustomServices();
-            services.AddControllers().AddNewtonsoftJson(o =>
+            
+            services.AddCors(options =>
             {
-                o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.AddPolicy(name: this.MyAllowSpecificOrigins,
+                    builder =>
+                    {
+                        builder
+                            .WithOrigins("http://localhost:4200")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials();
+                    });
             });
 
+            services
+                .AddCustomServices()
+                .AddControllers()
+                .AddNewtonsoftJson(
+                    o =>
+                    {
+                        o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    });
+            
+            services
+                .AddSwaggerGen(
+                    options =>
+                    {
+                        var jwtSecurityScheme = new OpenApiSecurityScheme
+                        {
+                            Scheme = "bearer",
+                            BearerFormat = "JWT",
+                            Name = "Authentication",
+                            In = ParameterLocation.Header,
+                            Type = SecuritySchemeType.Http,
+                            Description = "Put **_ONLY_** your JWT Bearer token on textbox below!",
 
+                            Reference = new OpenApiReference
+                            {
+                                Id = JwtBearerDefaults.AuthenticationScheme,
+                                Type = ReferenceType.SecurityScheme
+                            }
+                        };
 
+                        options.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
 
-
-
+                        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                        {
+                            { jwtSecurityScheme, new[]
+                            {
+                                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidGVzdDRAZ20udWEiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJ1c2VyIiwibmJmIjoxNjM4NjIzMzA4LCJleHAiOjE2Mzg2ODMzMDgsImlzcyI6IlNwb3J0U2VydmVyIiwiYXVkIjoiU3BvcnRQQUlDbGllbnQifQ.IoPb3rGLAwKsF-cNqVgq1GE6JB4mu81NVKMhpgV-SKA"
+                            } }
+                        });
+                    });
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseHttpsRedirection();
-
-
-
-
-            app.UseRouting();
-            app.UseMiddleware<ErrorHandlerMiddleware>();
-
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.UseStaticFiles();
-
-
-
-
-
-
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            
+            app
+                .UseHttpsRedirection()
+                .UseRouting()
+                .UseMiddleware<ErrorHandlerMiddleware>()
+                .UseAuthentication()
+                .UseAuthorization()
+                .UseStaticFiles()
+                .UseSwagger()
+                .UseSwaggerUI()
+                .UseEndpoints(
+                    endpoints =>
+                    {
+                        endpoints.MapControllers();
+                    });
         }
     }
-    
 }

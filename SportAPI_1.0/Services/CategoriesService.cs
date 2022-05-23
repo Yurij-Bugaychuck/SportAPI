@@ -1,54 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Data.Entity;
 using SportAPI.Interfaces;
 using SportAPI.Models;
-using System.Security.Authentication;
+using SportAPI.Models.User;
 
 namespace SportAPI.Services
 {
     public class CategoriesService : ICategoriesService
     {
-        SportContext _context;
+        private SportContext Context { get; }
+        
         public CategoriesService(SportContext dbContext)
         {
-            _context = dbContext;
+            this.Context = dbContext;
         }
+        
+        #region Public Methods
 
-        public void AddStatsCategory(StatsCategory cat) {
-            _context.StatsCategories.Add(cat);
-
-            _context.SaveChangesAsync();
-        }
-        public void UpdateStatsCategory(StatsCategory cat)
+        public void AddStatsCategory(StatsCategory cat)
         {
-            _context.StatsCategories.Update(cat);
+            this.Context.StatsCategories.Add(cat);
 
-            _context.SaveChanges();
+            this.Context.SaveChanges();
         }
-        public void RemoveStatsCategory(Guid catId)
+        
+        public void UpdateStatsCategory(StatsCategory category)
         {
-            var cat = _context.StatsCategories.FirstOrDefault(o => o.StatsCategoryId == catId);
-            _context.StatsCategories.Remove(cat);
-            _context.SaveChanges();
+            this.Context.StatsCategories.Update(category);
+
+            this.Context.SaveChanges();
         }
-        public List<StatsCategory> GetStatsCategories()
+        
+        public void RemoveStatsCategory(Guid categoryId)
         {
-            var categories = _context.StatsCategories.ToList();
+            var category = this.Context.StatsCategories
+                .FirstOrDefault(statsCategory => statsCategory.StatsCategoryId == categoryId);
 
-            return categories;
+            if (category != null)
+                this.Context.StatsCategories.Remove(category);
+
+            this.Context.SaveChanges();
         }
-        public StatsCategory GetStatsCategoryById(Guid catId)
-        {
-            var cat = _context.StatsCategories.FirstOrDefault(o => o.StatsCategoryId == catId);
+        
+        public List<StatsCategory> GetStatsCategories() => 
+            this.Context.StatsCategories.ToList();
+        
+        public StatsCategory GetStatsCategoryById(Guid catId) => 
+            this.Context.StatsCategories.FirstOrDefault(o => o.StatsCategoryId == catId);
 
-            return cat;
-        }
-
-
-
-
+        #endregion Public Methods
     }
 }

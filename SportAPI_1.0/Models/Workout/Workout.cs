@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SportAPI.Models
@@ -14,8 +12,9 @@ namespace SportAPI.Models
         public Guid WorkoutId { get; set; }
 
         public Guid UserId { get; set; }
+        
         [ForeignKey("UserId")]
-        User User { get; set; }
+        User.User User { get; set; }
 
 
 

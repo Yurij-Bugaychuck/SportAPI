@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using SportAPI.Models;
 using SportAPI.Interfaces;
+using SportAPI.Models.User;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,61 +20,61 @@ namespace SportAPI.Controllers
 
         public WorkoutExcerciseOptionController(IWorkoutService workoutService, IUserService userService)
         {
-            _workoutService = workoutService;
-            _userService = userService;
+            this._workoutService = workoutService;
+            this._userService = userService;
         }
     
         [HttpGet]
         public async Task<IActionResult> Get(Guid workoutId, Guid exerciseId)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            var p = _workoutService.GetWorkoutExerciseOptions(user, workoutId, exerciseId);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
+            var p = this._workoutService.GetWorkoutExerciseOptions(user, workoutId, exerciseId);
 
-            return Ok(p);
+            return this.Ok(p);
         }
 
         // GET api/<WorkoutExcerciseOptionController>/5
         [HttpGet("{key}")]
         public async Task<IActionResult> Get(Guid workoutId, Guid exerciseId, string key)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
-            var p = _workoutService.GetWorkoutExerciseOptionByKey(user, workoutId, exerciseId, key);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
+            var p = this._workoutService.GetWorkoutExerciseOptionByKey(user, workoutId, exerciseId, key);
 
-            return Ok(p);
+            return this.Ok(p);
         }
 
         // POST api/<WorkoutExcerciseOptionController>
         [HttpPost]
         public async Task<IActionResult> Post(Guid workoutId, Guid exerciseId, [Bind("key,value")] WorkoutExcerciseOption option)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
             
-            var res = _workoutService.AddWorkoutExerciseOption(user, workoutId, exerciseId, option);
+            var res = this._workoutService.AddWorkoutExerciseOption(user, workoutId, exerciseId, option);
 
-            return Ok("Added");
+            return this.Ok("Added");
         }
 
         // PUT api/<WorkoutExcerciseOptionController>/5
         [HttpPut("{optionId}")]
         public async Task<IActionResult> Put(Guid workoutId, Guid exerciseId, Guid optionId, [Bind("key,value")] WorkoutExcerciseOption option)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
             option.WorkoutExcerciseId = exerciseId;
             option.WorkoutExcerciseOptionId = optionId;
-            var res = _workoutService.UpdateWorkoutExerciseOption(user, workoutId, exerciseId, option);
+            var res = this._workoutService.UpdateWorkoutExerciseOption(user, workoutId, exerciseId, option);
 
-            return Ok("Update");
+            return this.Ok("Update");
         }
 
         // DELETE api/<WorkoutExcerciseOptionController>/5
         [HttpDelete("{optionId}")]
         public async Task<IActionResult> Delete(Guid workoutId, Guid exerciseId, Guid optionId)
         {
-            User user = _userService.GetByEmail(User.Identity.Name);
+            User user = this._userService.GetByEmail(this.User.Identity.Name);
             
-            var res = _workoutService.RemoveWorkoutExerciseOption(user, workoutId, exerciseId, optionId);
+            var res = this._workoutService.RemoveWorkoutExerciseOption(user, workoutId, exerciseId, optionId);
 
-            return Ok("Deleted");
+            return this.Ok("Deleted");
         }
     }
 }
