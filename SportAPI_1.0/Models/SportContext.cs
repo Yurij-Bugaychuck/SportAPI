@@ -23,11 +23,11 @@ namespace SportAPI.Models
             : base(options)
         {
             //this.Database.EnsureDeleted();
+            this.Configuration = configuration;
             this.Database.EnsureCreated();
             
             //this.ChangeTracker.LazyLoadingEnabled = false;
 
-            this.Configuration = configuration;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,7 +50,7 @@ namespace SportAPI.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-
+            
             optionsBuilder
                 .UseNpgsql(this.Configuration.GetConnectionString("DefaultConnection"));
         }

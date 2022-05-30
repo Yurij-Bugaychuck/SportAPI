@@ -26,8 +26,6 @@ namespace SportAPI
         
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient(_ => this.Configuration);
-            
             services.AddDbContext<SportContext>();
 
             //var connectionString = new SqlConnectionStringBuilder()
