@@ -52,7 +52,7 @@ namespace SportAPI.Models
             base.OnConfiguring(optionsBuilder);
 
             optionsBuilder
-                .UseNpgsql("Host=localhost;Port=5432;Database=sportdb;Username=postgres;Password=postgres");
+                .UseNpgsql(this.Configuration.GetConnectionString("DefaultConnection"));
         }
     }
 }
