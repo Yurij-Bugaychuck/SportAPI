@@ -122,6 +122,11 @@ namespace SportAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            if (!env.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
             
             app
                 .UseHttpsRedirection()
