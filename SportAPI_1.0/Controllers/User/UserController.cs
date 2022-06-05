@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using System.Diagnostics;
+using System.Linq;
 using SportAPI.Interfaces;
 using SportAPI.Models.User;
 using SportAPI.Services;
@@ -32,8 +33,20 @@ namespace SportAPI.Controllers
         public Task<IActionResult> Get()
         {
             User user = this.UserService.GetByEmail(this.User.Identity?.Name);
+
+            Models.OutModel.User responseUser = new()
+            {
+                UserId = user.UserId,
+                About = this.UserService.GetAbout(user).Value,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Images = this.UserService.GetAvatars(user).Select(avatar => avatar.Value),
+                Phone = user.Phone,
+                Username = user.Username
+            };
             
-            return Task.FromResult<IActionResult>(this.Ok(user));
+            return Task.FromResult<IActionResult>(this.Ok(responseUser));
         }
         
         [Authorize]

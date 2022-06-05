@@ -28,21 +28,6 @@ namespace SportAPI
         {
             services.AddDbContext<SportContext>();
 
-            //var connectionString = new SqlConnectionStringBuilder()
-            //{
-            //    DataSource = Environment.GetEnvironmentVariable("DB_HOST"),   
-            //    // Set Host to 'cloudsql' when deploying to App Engine Flexible environment
-            //    UserID = Environment.GetEnvironmentVariable("DB_USER"),        
-            //    Password = Environment.GetEnvironmentVariable("DB_PASS"),      
-            //    InitialCatalog = Environment.GetEnvironmentVariable("DB_NAME"), 
-
-            //    Encrypt = false,
-            //};
-            //connectionString.Pooling = true;
-
-            //string connection = Configuration.GetConnectionString("DefaultConnection");
-            //services.AddDbContext<SportContext>(options => options.UseSqlServer(connectionString.ConnectionString));
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(
                     options =>
