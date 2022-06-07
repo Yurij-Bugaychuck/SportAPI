@@ -51,11 +51,12 @@ namespace SportAPI.Services
 
         public async Task<User> UpdateUser(User userDB, User user)
         {
-
             if (user.FirstName != null)
                 userDB.FirstName = user.FirstName;
+            
             if (user.LastName != null)
                 userDB.LastName = user.LastName;
+            
             if (user.Phone != null)
                 userDB.Phone = user.Phone;
 
@@ -146,24 +147,15 @@ namespace SportAPI.Services
 
             return this.Context.UsersStats.FirstOrDefault(o => o.UserStatsId == stat.UserStatsId);
         }
-
-
+        
         public List<UserStat> GetUserStats(User user)
         {
             var userStats = this.Context.UsersStats
                 .Where(o => o.UserId == user.UserId)
                 .OrderBy(o => o.CreatedAt)
-                .AsEnumerable()
-                .GroupBy(o => o.Key) 
-                .ToDictionary(o => o.Key);
+                .ToList();
 
-            var res = new List<UserStat>();
-            foreach (var i in userStats)
-            {
-                res.Add(i.Value.FirstOrDefault());
-            }
-
-            return res;
+            return userStats;
         }
 
         public List<UserStat> GetUserStatByKey(User user, string key)

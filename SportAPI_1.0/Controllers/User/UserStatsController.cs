@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SportAPI.Models;
 using SportAPI.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using SportAPI.Models.User;
-
+using OutModel = SportAPI.Models.OutModel;
 namespace SportAPI.Controllers
 {
     [Route("api/user/stats")]
@@ -26,21 +28,64 @@ namespace SportAPI.Controllers
         public async Task<IActionResult> Get()
         {
             User user = this._userService.GetByEmail(this.User.Identity.Name);
-            var UserStats = this._userService.GetUserStats(user);
+            
+            var userStats = this._userService.GetUserStats(user);
+
+            List<OutModel.UserStats> outUserStats = new();
+
+            foreach (var userStatGroup in userStats.GroupBy(userStat => userStat.Key))
+            {
+                outUserStats.Add(
+                    new()
+                    {
+                        Values = userStatGroup
+                            .OrderBy(userStat => userStat.CreatedAt)
+                            .Select(
+                                userStat => new OutModel.UserStatValue
+                                {
+                                    Value = userStat.Value,
+                                    CreatedAt = userStat.CreatedAt
+                                })
+                            .ToList(),
+                        Key = userStatGroup.Key,
+                        StatsCategoryId = userStatGroup.FirstOrDefault()?.StatsCategoryId,
+                        UserId = userStatGroup.FirstOrDefault()?.UserId
+                    });
+            }
                   
-            return this.Ok(UserStats);
+            return this.Ok(outUserStats);
         }
         
         [HttpGet("{key}")]
         public async Task<IActionResult> GetStatsByKey(string? key)
         {
             User user = this._userService.GetByEmail(this.User.Identity.Name);
-            var UsersStats = this._userService.GetUserStatByKey(user, key);
+            var usersStats = this._userService.GetUserStatByKey(user, key);
 
-            return this.Ok(UsersStats);
+            OutModel.UserStats outUserStat = null;
+
+            if (usersStats.Any())
+            {
+                outUserStat = new()
+                {
+                    Key = usersStats.FirstOrDefault()?.Key,
+                    StatsCategoryId = usersStats.FirstOrDefault()?.StatsCategoryId,
+                    UserId = usersStats.FirstOrDefault()?.UserId,
+                    Values = usersStats
+                        .OrderBy(userStat => userStat.CreatedAt)
+                        .Select(
+                            userStat => new OutModel.UserStatValue
+                            {
+                                Value = userStat.Value,
+                                CreatedAt = userStat.CreatedAt
+                            })
+                        .ToList()
+                };
+            }
+
+            return this.Ok(outUserStat);
         }
-
-
+        
         [HttpGet("category/{categoryId}")]
         public async Task<IActionResult> GetStatsByCategory(Guid categoryId)
         {
