@@ -66,6 +66,7 @@ namespace SportAPI
                     o =>
                     {
                         o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                        o.SerializerSettings.DateFormatString = "yyyy-MM-ddTHH:mm:ss";
                     });
             
             services

@@ -2,18 +2,19 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SportAPI.Models
+namespace SportAPI.Models.Workout.WorkoutExercise
 {
-    public class WorkoutExcerciseOption
+    public class WorkoutExerciseOption
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid WorkoutExcerciseOptionId { get; set; }
-        public Guid? WorkoutExcerciseId { get; set; }
+        public Guid WorkoutExerciseOptionId { get; set; }
+        
+        [ForeignKey("WorkoutExercise")]
+        public Guid? WorkoutExerciseId { get; set; }
 
-        [ForeignKey("WorkoutExcerciseId")]
-        public WorkoutExcercise WorkoutExcercise { get; set; }
-
+        [ForeignKey("WorkoutExerciseId")]
+        public WorkoutExercise WorkoutExercise { get; set; }
 
         public string Key { get; set; }
         public int Value { get; set; }
@@ -21,8 +22,5 @@ namespace SportAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-
-
     }
 }

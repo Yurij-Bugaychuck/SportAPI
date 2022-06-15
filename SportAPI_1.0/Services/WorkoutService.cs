@@ -7,8 +7,10 @@ using SportAPI.Interfaces;
 using System.Data.Entity;
 using System.Security.Authentication;
 using SportAPI.Models.User;
+using SportAPI.Models.Workout;
+using SportAPI.Models.Workout.WorkoutExercise;
 
-namespace SportAPI
+namespace SportAPI.Services
 {
     public class WorkoutService : IWorkoutService
     {
@@ -28,13 +30,6 @@ namespace SportAPI
         }
 
         public bool HaveAccessWorkout(User user, Guid workoutId)
-        {
-            Workout workout = this._context.Workouts.FirstOrDefault(o => o.WorkoutId == workoutId);
-
-            return this.HaveAccessWorkout(user, workout);
-        }
-
-        public bool HaveAccessWorkoutExercise(User user, Guid workoutId)
         {
             Workout workout = this._context.Workouts.FirstOrDefault(o => o.WorkoutId == workoutId);
 
@@ -76,8 +71,12 @@ namespace SportAPI
 
             if (workout.About != null)
                 workoutdb.About = workout.About;
-
-            workoutdb.IsPublished = workout.IsPublished;
+            
+            if (workout.StartFrom != null)
+                workoutdb.StartFrom = workout.StartFrom;
+            
+            if (workout.IsPublished != null)
+                workoutdb.IsPublished = workout.IsPublished;
 
             this._context.Workouts.Update(workoutdb);
             await this._context.SaveChangesAsync();
@@ -174,7 +173,7 @@ namespace SportAPI
             this._context.WorkoutsOptions.Remove(optionDB);
         }
 
-        public List<WorkoutExcercise> GetWorkoutExercises(User user, Guid workoutId)
+        public List<WorkoutExercise> GetWorkoutExercises(User user, Guid workoutId)
         {
             var workout = this._context.Workouts.FirstOrDefault(o => o.WorkoutId == workoutId);
 
@@ -184,21 +183,24 @@ namespace SportAPI
             if (!this.HaveAccessWorkout(user, workout))
                 throw new AuthenticationException();
 
-            var excercises = this._context.WorkoutsExcercises.Where(o => o.WorkoutId == workout.WorkoutId)
+            var excercises = this._context.WorkoutsExercises
+                .Include(exercise => exercise.WorkoutExerciseCategory)
+                .Where(o => o.WorkoutId == workout.WorkoutId)
                 .OrderBy(o => o.Order)
-                .Include(o => o.Options)
                 .ToList();
 
             return excercises;
         }
 
-        public WorkoutExcercise GetWorkoutExerciseById(User user, Guid workoutId, Guid exerciseId)
+        public WorkoutExercise GetWorkoutExerciseById(User user, Guid workoutId, Guid exerciseId)
         {
             var workout = this._context.Workouts.FirstOrDefault(o => o.WorkoutId == workoutId);
 
             if (this.HaveAccessWorkout(user, workout))
             {
-                var exercise = this._context.WorkoutsExcercises.FirstOrDefault(o => o.WorkoutExcerciseId == exerciseId);
+                var exercise = this._context.WorkoutsExercises
+                    .Include(exercise => exercise.WorkoutExerciseCategory)
+                    .FirstOrDefault(o => o.WorkoutExerciseId == exerciseId);
 
                 return exercise;
             }
@@ -208,14 +210,26 @@ namespace SportAPI
             }
         }
 
-        public WorkoutExcercise AddWorkoutExercise(User user, WorkoutExcercise exercise)
+        public WorkoutExercise AddWorkoutExercise(User user, WorkoutExercise exercise)
         {
             var workout = this._context.Workouts.FirstOrDefault(o => o.WorkoutId == exercise.WorkoutId);
 
             if (this.HaveAccessWorkout(user, workout))
             {
-                this._context.WorkoutsExcercises.Add(exercise);
+                WorkoutExerciseCategory category = this._context.WorkoutsExerciseCategory
+                    .FirstOrDefault(
+                        cat => cat.WorkoutExerciseCategoryId == exercise.WorkoutExerciseCategoryId);
+
+                if (category != null)
+                    exercise.WorkoutExerciseCategory = category;
+
+                this._context.WorkoutsExercises.Add(exercise);
                 this._context.SaveChanges();
+
+                if (exercise.WorkoutExerciseCategoryId != null)
+                    exercise = this._context.WorkoutsExercises
+                        .Include(dbExercise => dbExercise.WorkoutExerciseCategory)
+                        .FirstOrDefault(dbExercise => dbExercise.WorkoutExerciseId == exercise.WorkoutExerciseId);
 
                 return exercise;
             }
@@ -225,16 +239,29 @@ namespace SportAPI
             }
         }
 
-        public List<WorkoutExcercise> AddRangeWorkoutExercise(User user, List<WorkoutExcercise> exercises)
+        public List<WorkoutExercise> AddRangeWorkoutExercise(User user, List<WorkoutExercise> exercises)
         {
             var workout = this._context.Workouts.FirstOrDefault(o => o.WorkoutId == exercises[0].WorkoutId);
 
             if (this.HaveAccessWorkout(user, workout))
             {
-                this._context.WorkoutsExcercises.AddRange(exercises);
+                foreach (var exercise in exercises)
+                {
+                    WorkoutExerciseCategory category = this._context.WorkoutsExerciseCategory
+                        .FirstOrDefault(
+                            cat => cat.WorkoutExerciseCategoryId == exercise.WorkoutExerciseCategoryId);
+
+                    if (category != null)
+                        exercise.WorkoutExerciseCategory = category;
+                }
+
+                this._context.WorkoutsExercises.AddRange(exercises);
                 this._context.SaveChanges();
 
-                return this._context.WorkoutsExcercises.Where(o => o.WorkoutId == workout.WorkoutId).ToList();
+                return this._context.WorkoutsExercises
+                    .Include(exercise => exercise.WorkoutExerciseCategory)
+                    .Where(o => o.WorkoutId == workout.WorkoutId)
+                    .ToList();
             }
             else
             {
@@ -242,7 +269,7 @@ namespace SportAPI
             }
         }
 
-        public WorkoutExcercise UpdateWorkoutExercise(User user, WorkoutExcercise exercise)
+        public WorkoutExercise UpdateWorkoutExercise(User user, WorkoutExercise exercise)
         {
             var workout = this._context.Workouts.FirstOrDefault(o => o.WorkoutId == exercise.WorkoutId);
 
@@ -253,8 +280,8 @@ namespace SportAPI
                 throw new AuthenticationException();
 
             var excerciseDb =
-                this._context.WorkoutsExcercises.FirstOrDefault(
-                    o => o.WorkoutExcerciseId == exercise.WorkoutExcerciseId);
+                this._context.WorkoutsExercises.FirstOrDefault(
+                    o => o.WorkoutExerciseId == exercise.WorkoutExerciseId);
 
             excerciseDb.IsSet = exercise.IsSet;
 
@@ -284,19 +311,26 @@ namespace SportAPI
 
             excerciseDb.Order = exercise.Order;
 
-            this._context.WorkoutsExcercises.Update(excerciseDb);
+            WorkoutExerciseCategory category = this._context.WorkoutsExerciseCategory
+                .FirstOrDefault(
+                    cat => cat.WorkoutExerciseCategoryId == exercise.WorkoutExerciseCategoryId);
+
+            if (category != null)
+                excerciseDb.WorkoutExerciseCategory = category;
+
+            this._context.WorkoutsExercises.Update(excerciseDb);
             this._context.SaveChanges();
 
             return excerciseDb;
         }
 
-        public WorkoutExcercise RemoveWorkoutExercise(User user, WorkoutExcercise exercise)
+        public WorkoutExercise RemoveWorkoutExercise(User user, WorkoutExercise exercise)
         {
             var workout = this._context.Workouts.FirstOrDefault(o => o.WorkoutId == exercise.WorkoutId);
 
             if (this.HaveAccessWorkout(user, workout))
             {
-                this._context.WorkoutsExcercises.Remove(exercise);
+                this._context.WorkoutsExercises.Remove(exercise);
                 this._context.SaveChanges();
 
                 return exercise;
@@ -307,21 +341,14 @@ namespace SportAPI
             }
         }
 
-        public List<WorkoutExcerciseOption> GetWorkoutExerciseOptions(User user, Guid workoutId, Guid exerciseId)
+        public List<WorkoutExerciseOption> GetWorkoutExerciseOptions(User user, Guid workoutId, Guid exerciseId)
         {
             //return _context.WorkoutsExcercisesOptions.Include(o => o.WorkoutExcercise).ToList();
-            var exercise = this._context.WorkoutsExcercisesOptions.Where(o => o.WorkoutExcerciseId == exerciseId);
+            var exerciseOptionList = this._context.WorkoutsExercisesOptions.Where(o => o.WorkoutExerciseId == exerciseId);
 
             if (this.HaveAccessWorkout(user, workoutId))
             {
-                if (exercise != null)
-                {
-                    return exercise.OrderBy(o => o.CreatedAt).Include(o => o.WorkoutExcercise).ToList();
-                }
-                else
-                {
-                    throw new KeyNotFoundException();
-                }
+                return exerciseOptionList.OrderBy(o => o.CreatedAt).ToList();
             }
             else
             {
@@ -329,20 +356,28 @@ namespace SportAPI
             }
         }
 
-        public List<WorkoutExcerciseOption> GetWorkoutExerciseOptionByKey(
+        public List<WorkoutExerciseOption> GetWorkoutExerciseOptionByKey(
             User user,
             Guid workoutId,
             Guid exerciseId,
             string key)
         {
-            var exercise = this._context.WorkoutsExcercises.Include(o => o.Options)
-                .FirstOrDefault(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            var exercise = this._context.WorkoutsExercises
+                .FirstOrDefault(o => o.WorkoutExerciseId == exerciseId && o.WorkoutId == workoutId);
 
             if (this.HaveAccessWorkout(user, workoutId))
             {
                 if (exercise != null)
                 {
-                    return exercise.Options.Where(o => o.Key == key).OrderBy(o => o.CreatedAt).ToList();
+                    var optionList = this._context.WorkoutsExercisesOptions
+                        .Where(
+                            o =>
+                                o.WorkoutExerciseId == exercise.WorkoutExerciseId &&
+                                o.Key == key)
+                        .OrderBy(o => o.CreatedAt)
+                        .ToList();
+
+                    return optionList;
                 }
                 else
                 {
@@ -355,22 +390,22 @@ namespace SportAPI
             }
         }
 
-        public WorkoutExcerciseOption AddWorkoutExerciseOption(
+        public WorkoutExerciseOption AddWorkoutExerciseOption(
             User user,
             Guid workoutId,
             Guid exerciseId,
-            WorkoutExcerciseOption option)
+            WorkoutExerciseOption option)
         {
-            var exercise = this._context.WorkoutsExcercises.FirstOrDefault(
-                o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            var exercise = this._context.WorkoutsExercises.FirstOrDefault(
+                o => o.WorkoutExerciseId == exerciseId && o.WorkoutId == workoutId);
 
             if (this.HaveAccessWorkout(user, workoutId))
             {
                 if (exercise != null)
                 {
                     Console.WriteLine(exercise);
-                    option.WorkoutExcercise = exercise;
-                    this._context.WorkoutsExcercisesOptions.Add(option);
+                    option.WorkoutExercise = exercise;
+                    this._context.WorkoutsExercisesOptions.Add(option);
                     this._context.SaveChanges();
 
                     return option;
@@ -386,31 +421,34 @@ namespace SportAPI
             }
         }
 
-        public WorkoutExcerciseOption UpdateWorkoutExerciseOption(
+        public WorkoutExerciseOption UpdateWorkoutExerciseOption(
             User user,
             Guid workoutId,
             Guid exerciseId,
-            WorkoutExcerciseOption option)
+            WorkoutExerciseOption option)
         {
-            var exercise = this._context.WorkoutsExcercises.Include(o => o.Options)
-                .FirstOrDefault(o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            var exercise = this._context.WorkoutsExercises
+                .FirstOrDefault(o => o.WorkoutExerciseId == exerciseId && o.WorkoutId == workoutId);
 
             if (this.HaveAccessWorkout(user, workoutId))
             {
                 if (exercise != null)
                 {
-                    var opt = this._context.WorkoutsExcercisesOptions
+                    var opt = this._context.WorkoutsExercisesOptions
                         .FirstOrDefault(
-                            o => o.WorkoutExcerciseId == option.WorkoutExcerciseId &&
-                                 o.WorkoutExcerciseOptionId == option.WorkoutExcerciseOptionId);
+                            o => o.WorkoutExerciseId == option.WorkoutExerciseId &&
+                                 o.WorkoutExerciseOptionId == option.WorkoutExerciseOptionId);
 
-                    opt.Key = option.Key;
-                    opt.Value = option.Value;
-                    this._context.WorkoutsExcercisesOptions.Update(opt);
+                    if (opt != null)
+                    {
+                        opt.Key = option.Key;
+                        opt.Value = option.Value;
+                        this._context.WorkoutsExercisesOptions.Update(opt);
 
-                    this._context.SaveChanges();
+                        this._context.SaveChanges();
 
-                    return opt;
+                        return opt;
+                    }
                 }
                 else
                 {
@@ -421,32 +459,34 @@ namespace SportAPI
             {
                 throw new AuthenticationException();
             }
+
+            return null;
         }
 
-        public WorkoutExcerciseOption RemoveWorkoutExerciseOption(
+        public WorkoutExerciseOption RemoveWorkoutExerciseOption(
             User user,
             Guid workoutId,
             Guid exerciseId,
             Guid optionId)
         {
-            var exercise = this._context.WorkoutsExcercises.FirstOrDefault(
-                o => o.WorkoutExcerciseId == exerciseId && o.WorkoutId == workoutId);
+            var exercise = this._context.WorkoutsExercises.FirstOrDefault(
+                o => o.WorkoutExerciseId == exerciseId && o.WorkoutId == workoutId);
 
             if (this.HaveAccessWorkout(user, workoutId))
             {
                 if (exercise != null)
                 {
-                    var _option = this._context.WorkoutsExcercisesOptions.FirstOrDefault(
-                        o => o.WorkoutExcerciseOptionId == optionId &&
-                             exercise.WorkoutExcerciseId == o.WorkoutExcerciseId);
+                    var option = this._context.WorkoutsExercisesOptions.FirstOrDefault(
+                        o => o.WorkoutExerciseOptionId == optionId &&
+                             exercise.WorkoutExerciseId == o.WorkoutExerciseId);
 
-                    if (_option != null)
+                    if (option != null)
                     {
-                        this._context.WorkoutsExcercisesOptions.Remove(_option);
+                        this._context.WorkoutsExercisesOptions.Remove(option);
 
                         this._context.SaveChanges();
 
-                        return _option;
+                        return option;
                     }
                 }
             }

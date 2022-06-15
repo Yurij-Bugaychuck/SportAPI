@@ -33,6 +33,6 @@ namespace SportAPI.Models.User
         public List<UserStat> Stats { get; set; }
         
         public List<UserOption> Options { get; set; }
-        public List<Workout> Workouts { get; set; }
+        public List<Workout.Workout> Workouts { get; set; }
     }
 }

@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SportAPI.Models
+namespace SportAPI.Models.Workout.WorkoutExercise
 {
-    public class WorkoutExcercise
+    public class WorkoutExercise
     {
         [Key]
-        public Guid WorkoutExcerciseId { get; set; } = Guid.NewGuid();
-        public Guid WorkoutId { get; set; }
-        [ForeignKey("WorkoutId")]
+        public Guid? WorkoutExerciseId { get; set; } = Guid.NewGuid();
+
+        [ForeignKey("Workout")]
+        public Guid? WorkoutId { get; set; }
 
         public bool IsSet { get; set; } = false;
 
-        public uint Order { get; set; } = 0;
+        public int? Order { get; set; } = 0;
 
         public int? Repeats { get; set; } = 0;
         public int? Calories { get; set; } = 0;
@@ -29,13 +30,10 @@ namespace SportAPI.Models
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [DataType(DataType.Date)]
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-
-        public List<WorkoutExcerciseCategory> Categories { get; set; }
-        public List<WorkoutExcerciseOption> Options { get; set; } = new List<WorkoutExcerciseOption>();
-
-
-
+        
+        public Guid? WorkoutExerciseCategoryId { get; set; }
+        public WorkoutExerciseCategory WorkoutExerciseCategory { get; set; }
     }
 }

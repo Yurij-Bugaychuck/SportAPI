@@ -2,14 +2,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SportAPI.Models
+namespace SportAPI.Models.User
 {
     public class UserStat
     {
         [Key]
         public Guid UserStatsId { get; set; } = Guid.NewGuid();
 
-        [ForeignKey("UserId")]
+        [ForeignKey("User")]
         public Guid UserId { get; set; }
 
         public string Key { get; set; }
@@ -19,7 +19,7 @@ namespace SportAPI.Models
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        [ForeignKey("StatsCategoryId")]
+        [ForeignKey("StatsCategory")]
         public Guid? StatsCategoryId { get; set; }
     }
 }

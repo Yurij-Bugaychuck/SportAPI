@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using PagedList;
 using SportAPI.Interfaces;
 using SportAPI.Models.User;
+using SportAPI.Models.Workout;
 
 namespace SportAPI.Controllers
 {
@@ -62,9 +63,9 @@ namespace SportAPI.Controllers
         {
             search = search?.ToLower();
 
-            IQueryable<Workout> query = this._workoutService
+            IQueryable<Models.Workout.Workout> query = this._workoutService
                 .GetWorkouts()
-                .Where(workout => workout.IsPublished);
+                .Where(workout => workout.IsPublished == true);
 
             if (!string.IsNullOrEmpty(search))
             {
@@ -74,7 +75,7 @@ namespace SportAPI.Controllers
                         workout.About.ToLower().Contains(search));
             }
 
-            List<Workout> workoutList = query
+            List<Models.Workout.Workout> workoutList = query
                 .OrderByDescending(workout => workout.CreatedAt)
                 .ToPagedList(
                     pageNumber: page,
@@ -85,7 +86,7 @@ namespace SportAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index([Bind("Name,About,IsPublished")] Workout workout)
+        public async Task<IActionResult> Index([Bind("Name,About,IsPublished")] Models.Workout.Workout workout)
         {
             User user = this._userService.GetByEmail(this.User.Identity.Name);
 
@@ -96,7 +97,7 @@ namespace SportAPI.Controllers
 
         //PUT: Edit User
         [HttpPut]
-        public async Task<IActionResult> Edit([Bind("WorkoutId,Name,About,IsPublished")] Workout workout)
+        public async Task<IActionResult> Edit([Bind("WorkoutId,Name,About,IsPublished,StartFrom")] Models.Workout.Workout workout)
         {
             User user = this._userService.GetByEmail(this.User.Identity.Name);
 

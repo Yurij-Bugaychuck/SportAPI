@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Data.Entity;
 using SportAPI.Interfaces;
 using SportAPI.Models;
 using System.Security.Authentication;
@@ -13,12 +12,12 @@ using SportAPI.Models.User;
 
 namespace SportAPI.Services
 {
-    public class UserService : IUserService, ISecurityService
+    public class UserService : IUserService
     {
         private SportContext Context { get; }
         private ImageService ImageService { get; }
         private IWebHostEnvironment AppEnvironment { get; }
-        
+
         public UserService(SportContext dbContext, ImageService imageService, IWebHostEnvironment appEnvironment)
         {
             this.Context = dbContext;
@@ -26,14 +25,10 @@ namespace SportAPI.Services
             this.AppEnvironment = appEnvironment;
         }
 
-        public bool CanRead<UserOption>(User user, UserOption userOption)
-        {
-            return true;
-        }
-        
         public User GetByEmail(string email)
         {
-            return this.Context.Users.Include(o => o.Workouts).FirstOrDefault(o => o.Email == email);
+            return this.Context.Users
+                .FirstOrDefault(o => o.Email == email);
         }
 
         public User GetById(Guid id)
@@ -53,10 +48,10 @@ namespace SportAPI.Services
         {
             if (user.FirstName != null)
                 userDB.FirstName = user.FirstName;
-            
+
             if (user.LastName != null)
                 userDB.LastName = user.LastName;
-            
+
             if (user.Phone != null)
                 userDB.Phone = user.Phone;
 
@@ -83,11 +78,13 @@ namespace SportAPI.Services
         public async Task<UserOption> UpdateUserOption(User user, UserOption option)
         {
             var optionDB = this.Context.UsersOptions.FirstOrDefault(o => o.UserOptionsId == option.UserOptionsId);
-            
-            if (optionDB.UserId != user.UserId) throw new AuthenticationException();
+
+            if (optionDB.UserId != user.UserId)
+                throw new AuthenticationException();
 
             if (option.Key != null)
                 optionDB.Key = option.Key;
+
             if (option.Value != null)
                 optionDB.Value = option.Value;
 
@@ -100,15 +97,15 @@ namespace SportAPI.Services
         public async Task<UserOption> RemoveUserOption(User user, Guid optionId)
         {
             var option = this.Context.UsersOptions.FirstOrDefault(o => o.UserOptionsId == optionId);
-            
-            if (option.UserId != user.UserId) throw new AuthenticationException();
+
+            if (option.UserId != user.UserId)
+                throw new AuthenticationException();
 
             this.Context.UsersOptions.Remove(option);
             await this.Context.SaveChangesAsync();
 
             return option;
         }
-
 
         public List<UserOption> GetUserOptions(User user)
         {
@@ -120,6 +117,7 @@ namespace SportAPI.Services
                 .ToDictionary(o => o.Key);
 
             var res = new List<UserOption>();
+
             foreach (var i in userOptions)
             {
                 res.Add(i.Value.FirstOrDefault());
@@ -130,8 +128,10 @@ namespace SportAPI.Services
 
         public List<UserOption> GetUserOptionByKey(User user, string key)
         {
-            var userOptions = this.Context.UsersOptions.Where(o => o.UserId == user.UserId && o.Key == key).OrderBy(o => o.CreatedAt).ToList();
- 
+            var userOptions = this.Context.UsersOptions.Where(o => o.UserId == user.UserId && o.Key == key)
+                .OrderBy(o => o.CreatedAt)
+                .ToList();
+
             return userOptions;
         }
 
@@ -147,7 +147,7 @@ namespace SportAPI.Services
 
             return this.Context.UsersStats.FirstOrDefault(o => o.UserStatsId == stat.UserStatsId);
         }
-        
+
         public List<UserStat> GetUserStats(User user)
         {
             var userStats = this.Context.UsersStats
@@ -164,7 +164,7 @@ namespace SportAPI.Services
                 .Where(o => o.UserId == user.UserId && o.Key == key)
                 .OrderBy(o => o.CreatedAt)
                 .ToList();
-            
+
             return userStats;
         }
 
@@ -172,12 +172,14 @@ namespace SportAPI.Services
         {
             var userStats = this.Context.UsersStats
                 .Where(o => o.UserId == user.UserId && o.StatsCategoryId == categoryId)
-                .OrderBy(o => o.CreatedAt).OrderByDescending(o => o.CreatedAt)
+                .OrderBy(o => o.CreatedAt)
+                .OrderByDescending(o => o.CreatedAt)
                 .AsEnumerable()
                 .GroupBy(o => o.Key)
                 .ToDictionary(o => o.Key);
 
             var res = new List<UserStat>();
+
             foreach (var i in userStats)
             {
                 res.Add(i.Value.FirstOrDefault());
@@ -186,18 +188,20 @@ namespace SportAPI.Services
             return res;
         }
 
-
         public async Task<UserStat> UpdateUserStat(User user, UserStat stat)
         {
             var statDB = this.Context.UsersStats
                 .FirstOrDefault(o => stat.UserStatsId == o.UserStatsId);
-            
-            if (statDB.UserId != user.UserId) throw new AuthenticationException();
+
+            if (statDB.UserId != user.UserId)
+                throw new AuthenticationException();
 
             if (stat.Key != null)
                 statDB.Key = stat.Key;
+
             if (stat.Value != null)
                 statDB.Value = stat.Value;
+
             if (stat.StatsCategoryId != null)
                 statDB.StatsCategoryId = stat.StatsCategoryId;
 
@@ -211,7 +215,8 @@ namespace SportAPI.Services
         {
             var stat = this.Context.UsersStats.FirstOrDefault(o => o.UserStatsId == statId);
 
-            if (stat.UserId != user.UserId) throw new AuthenticationException();
+            if (stat.UserId != user.UserId)
+                throw new AuthenticationException();
 
             this.Context.UsersStats.Remove(stat);
             await this.Context.SaveChangesAsync();
@@ -228,19 +233,19 @@ namespace SportAPI.Services
                 "UsersAvatar",
                 user.UserId.ToString());
 
-
             string ImgPath = await ImageService.NewImage(StartPath, image, avatarsCount);
 
             string FileExt = Path.GetExtension(image.FileName).ToLower();
 
-            string resUrl = "UsersAvatar/"+ user.UserId.ToString() + "/avatar-" + avatarsCount.ToString() + FileExt;
+            string resUrl = "UsersAvatar/" + user.UserId.ToString() + "/avatar-" + avatarsCount.ToString() + FileExt;
 
-            var ImgOption = new UserOption { Key = "avatar", Value = resUrl };
+            var ImgOption = new UserOption {Key = "avatar", Value = resUrl};
 
             var res = await this.AddUserOption(user, ImgOption);
 
             return ImgOption;
         }
+
         public UserOption GetAvatar(User user)
         {
             var avatar = this.GetUserOptionByKey(user, "avatar").OrderByDescending(o => o.CreatedAt).FirstOrDefault();
@@ -248,6 +253,7 @@ namespace SportAPI.Services
             if (avatar == null)
             {
                 string defaultPath = "UsersAvatar/default.png";
+
                 avatar = new UserOption
                 {
                     UserId = user.UserId,
@@ -255,9 +261,9 @@ namespace SportAPI.Services
                     Value = defaultPath
                 };
             }
+
             return avatar;
         }
-
 
         public List<UserOption> GetAvatars(User user)
         {
@@ -273,6 +279,7 @@ namespace SportAPI.Services
             if (about == null)
             {
                 string defaultValue = "...";
+
                 about = new UserOption
                 {
                     UserId = user.UserId,
@@ -283,10 +290,11 @@ namespace SportAPI.Services
                 this.Context.UsersOptions.Add(about);
                 this.Context.SaveChanges();
             }
+
             return about;
         }
 
-        public UserOption AddAbout(User user, string aboutValue)
+        public UserOption UpdateAbout(User user, string aboutValue)
         {
             var about = this.GetAbout(user);
 
@@ -295,10 +303,7 @@ namespace SportAPI.Services
             this.Context.UsersOptions.Update(about);
             this.Context.SaveChanges();
 
-            
             return about;
         }
-
-
     }
 }

@@ -3,7 +3,7 @@ using SportAPI.Interfaces;
 
 namespace SportAPI.Services
 {
-    public static class CustomServices
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddCustomServices(this IServiceCollection services)
         {
@@ -11,7 +11,7 @@ namespace SportAPI.Services
                 .AddTransient<ImageService>()
                 .AddTransient<IWorkoutService, WorkoutService>()
                 .AddTransient<IUserService, UserService>()
-                .AddTransient<ICategoriesService, CategoriesService>();
+                .AddTransient<ICategoriesService, StatsCategoriesService>();
 
             return services;
         }

@@ -5,6 +5,7 @@ using SportAPI.Models;
 using SportAPI.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using SportAPI.Models.User;
+using SportAPI.Models.Workout;
 
 namespace SportAPI.Controllers
 {

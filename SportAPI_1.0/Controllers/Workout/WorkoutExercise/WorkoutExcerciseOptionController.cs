@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using SportAPI.Models;
 using SportAPI.Interfaces;
 using SportAPI.Models.User;
+using SportAPI.Models.Workout.WorkoutExercise;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -45,7 +46,7 @@ namespace SportAPI.Controllers
 
         // POST api/<WorkoutExcerciseOptionController>
         [HttpPost]
-        public async Task<IActionResult> Post(Guid workoutId, Guid exerciseId, [Bind("key,value")] WorkoutExcerciseOption option)
+        public async Task<IActionResult> Post(Guid workoutId, Guid exerciseId, [Bind("key,value")] WorkoutExerciseOption option)
         {
             User user = this._userService.GetByEmail(this.User.Identity.Name);
             
@@ -56,11 +57,11 @@ namespace SportAPI.Controllers
 
         // PUT api/<WorkoutExcerciseOptionController>/5
         [HttpPut("{optionId}")]
-        public async Task<IActionResult> Put(Guid workoutId, Guid exerciseId, Guid optionId, [Bind("key,value")] WorkoutExcerciseOption option)
+        public async Task<IActionResult> Put(Guid workoutId, Guid exerciseId, Guid optionId, [Bind("key,value")] WorkoutExerciseOption option)
         {
             User user = this._userService.GetByEmail(this.User.Identity.Name);
-            option.WorkoutExcerciseId = exerciseId;
-            option.WorkoutExcerciseOptionId = optionId;
+            option.WorkoutExerciseId = exerciseId;
+            option.WorkoutExerciseOptionId = optionId;
             var res = this._workoutService.UpdateWorkoutExerciseOption(user, workoutId, exerciseId, option);
 
             return this.Ok("Update");

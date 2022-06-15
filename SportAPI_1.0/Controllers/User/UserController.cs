@@ -98,7 +98,7 @@ namespace SportAPI.Controllers
         {
             Debug.WriteLine("KEEEEEEEEEK----> " + aboutValue);
             User user = this.UserService.GetByEmail(this.User.Identity?.Name);
-            var about = this.UserService.AddAbout(user, aboutValue);
+            var about = this.UserService.UpdateAbout(user, aboutValue);
 
             return this.Ok(about);
         }

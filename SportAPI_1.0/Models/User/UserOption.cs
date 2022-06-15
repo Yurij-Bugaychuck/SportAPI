@@ -8,14 +8,14 @@ namespace SportAPI.Models.User
     {
         [Key]
         public Guid UserOptionsId { get; set; } = Guid.NewGuid();
+        
+        [ForeignKey("User")]
+        public Guid? UserId { get; set; }
 
-        public Guid? UserId { get; set; } = null;
-
-        [ForeignKey("UserId")]
         public string Key { get; set; }
-
+        
         public string Value { get; set; }
-
+        
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

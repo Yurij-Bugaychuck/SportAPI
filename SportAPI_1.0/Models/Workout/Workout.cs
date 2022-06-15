@@ -3,20 +3,19 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SportAPI.Models
+namespace SportAPI.Models.Workout
 { 
     public class Workout
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid WorkoutId { get; set; }
-
+        
+        [ForeignKey("User")]
         public Guid UserId { get; set; }
         
         [ForeignKey("UserId")]
         User.User User { get; set; }
-
-
 
         [StringLength(50)]
         public string Name { get; set; }
@@ -24,18 +23,12 @@ namespace SportAPI.Models
         [StringLength(50)]
         public string About { get; set; }
 
-
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        public bool IsPublished { get; set; } = false;
-
-
-        public List<WorkoutOption> Options { get; set; }
-        public List<WorkoutExcercise> Excercises { get; set; }
-
-
-
+        
+        public DateTime? StartFrom { get; set; }
+        
+        public bool? IsPublished { get; set; } = false;
     }
 }

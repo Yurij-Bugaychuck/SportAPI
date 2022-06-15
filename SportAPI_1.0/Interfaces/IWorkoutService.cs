@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SportAPI.Models;
 using SportAPI.Models.User;
+using SportAPI.Models.Workout;
+using SportAPI.Models.Workout.WorkoutExercise;
 
 namespace SportAPI.Interfaces
 {
@@ -25,25 +26,25 @@ namespace SportAPI.Interfaces
 
         void DeleteWorkoutOption(User user, Guid workoutId, Guid optionId);
 
-        public List<WorkoutExcercise> GetWorkoutExercises(User user, Guid workoutId);
+        public List<WorkoutExercise> GetWorkoutExercises(User user, Guid workoutId);
 
-        WorkoutExcercise GetWorkoutExerciseById(User user, Guid workoutId, Guid exerciseId);
-        WorkoutExcercise AddWorkoutExercise(User user, WorkoutExcercise exercise);
-        WorkoutExcercise UpdateWorkoutExercise(User user, WorkoutExcercise exercise);
-        WorkoutExcercise RemoveWorkoutExercise(User user, WorkoutExcercise exercise);
-        List<WorkoutExcercise> AddRangeWorkoutExercise(User user, List<WorkoutExcercise> exercises);
+        WorkoutExercise GetWorkoutExerciseById(User user, Guid workoutId, Guid exerciseId);
+        WorkoutExercise AddWorkoutExercise(User user, WorkoutExercise exercise);
+        WorkoutExercise UpdateWorkoutExercise(User user, WorkoutExercise exercise);
+        WorkoutExercise RemoveWorkoutExercise(User user, WorkoutExercise exercise);
+        List<WorkoutExercise> AddRangeWorkoutExercise(User user, List<WorkoutExercise> exercises);
 
-        List<WorkoutExcerciseOption> GetWorkoutExerciseOptions(User user, Guid workoutId, Guid exerciseId);
+        List<WorkoutExerciseOption> GetWorkoutExerciseOptions(User user, Guid workoutId, Guid exerciseId);
 
-        List<WorkoutExcerciseOption> GetWorkoutExerciseOptionByKey(
+        List<WorkoutExerciseOption> GetWorkoutExerciseOptionByKey(
             User user, Guid workoutId, Guid exerciseId, string key);
 
-        WorkoutExcerciseOption AddWorkoutExerciseOption(
-            User user, Guid workoutId, Guid exerciseId, WorkoutExcerciseOption option);
+        WorkoutExerciseOption AddWorkoutExerciseOption(
+            User user, Guid workoutId, Guid exerciseId, WorkoutExerciseOption option);
 
-        WorkoutExcerciseOption UpdateWorkoutExerciseOption(
-            User user, Guid workoutId, Guid exerciseId, WorkoutExcerciseOption option);
+        WorkoutExerciseOption UpdateWorkoutExerciseOption(
+            User user, Guid workoutId, Guid exerciseId, WorkoutExerciseOption option);
 
-        WorkoutExcerciseOption RemoveWorkoutExerciseOption(User user, Guid workoutId, Guid exerciseId, Guid optionId);
+        WorkoutExerciseOption RemoveWorkoutExerciseOption(User user, Guid workoutId, Guid exerciseId, Guid optionId);
     }
 }

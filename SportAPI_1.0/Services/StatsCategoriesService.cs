@@ -7,11 +7,11 @@ using SportAPI.Models.User;
 
 namespace SportAPI.Services
 {
-    public class CategoriesService : ICategoriesService
+    public class StatsCategoriesService : ICategoriesService
     {
         private SportContext Context { get; }
         
-        public CategoriesService(SportContext dbContext)
+        public StatsCategoriesService(SportContext dbContext)
         {
             this.Context = dbContext;
         }

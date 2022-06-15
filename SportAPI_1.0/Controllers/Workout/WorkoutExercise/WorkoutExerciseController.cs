@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SportAPI.Models;
 using SportAPI.Interfaces;
 using SportAPI.Models.User;
+using SportAPI.Models.Workout.WorkoutExercise;
 
 namespace SportAPI.Controllers
 {
@@ -14,11 +15,13 @@ namespace SportAPI.Controllers
     {
         private readonly IWorkoutService _workoutService;
         private readonly IUserService _userService;
+        
         public WorkoutExerciseController(IUserService userService, IWorkoutService workoutService)
         {
             this._workoutService = workoutService;
             this._userService = userService;
         }
+        
         // GET: api/<WorkoutExcerciseController>
         [HttpGet]
         public async Task<IActionResult> Get(Guid workoutId)
@@ -42,19 +45,19 @@ namespace SportAPI.Controllers
 
         // POST api/<WorkoutExcerciseController>
         [HttpPost]
-        public async Task<IActionResult> Post(Guid workoutId, [Bind("IsSet,Order,Repeats,Calories,Sets,Duration,Weight,Name,About")] WorkoutExcercise excercise)
+        public async Task<IActionResult> Post(Guid workoutId, [Bind("IsSet,Order,Repeats,Calories,Sets,Duration,Weight,Name,About,WorkoutExerciseCategoryId")] WorkoutExercise exercise)
         {
             User user = this._userService.GetByEmail(this.User.Identity.Name);
 
-            excercise.WorkoutId = workoutId;
+            exercise.WorkoutId = workoutId;
             
-            excercise  = this._workoutService.AddWorkoutExercise(user, excercise);
+            exercise = this._workoutService.AddWorkoutExercise(user, exercise);
 
-            return this.Ok(excercise);
+            return this.Ok(exercise);
         }
 
         [HttpPost("range")]
-        public async Task<IActionResult> PostRange(Guid workoutId, [Bind("IsSet,Order,Repeats,Calories,Sets,Duration,Weight,Name,About")] List<WorkoutExcercise> excercises)
+        public async Task<IActionResult> PostRange(Guid workoutId, [Bind("IsSet,Order,Repeats,Calories,Sets,Duration,Weight,Name,About,WorkoutExerciseCategoryId")] List<WorkoutExercise> excercises)
         {
             User user = this._userService.GetByEmail(this.User.Identity.Name);
 
@@ -67,12 +70,12 @@ namespace SportAPI.Controllers
 
         // PUT api/<WorkoutExcerciseController>/5
         [HttpPut("{exerciseId}")]
-        public async Task<IActionResult> Put(Guid workoutId, Guid exerciseId, [Bind("IsSet,Order,Repeats,Calories,Sets,Duration,Weight,Name,About")] WorkoutExcercise exercise)
+        public async Task<IActionResult> Put(Guid workoutId, Guid exerciseId, [Bind("IsSet,Order,Repeats,Calories,Sets,Duration,Weight,Name,About,WorkoutExerciseCategoryId")] WorkoutExercise exercise)
         {
             User user = this._userService.GetByEmail(this.User.Identity.Name);
 
             exercise.WorkoutId = workoutId;
-            exercise.WorkoutExcerciseId = exerciseId;
+            exercise.WorkoutExerciseId = exerciseId;
 
             var excercise = this._workoutService.UpdateWorkoutExercise(user, exercise);
 
